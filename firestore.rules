@@ -1,0 +1,124 @@
+// woork - Firebase Firestore Security Rules
+
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    
+    function isTeen() {
+      return isSignedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.userType == 'teen';
+    }
+    
+    function isParent() {
+      return isSignedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.userType == 'parent';
+    }
+    
+    function isEmployer() {
+      return isSignedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.userType == 'employer';
+    }
+    
+    function isAdmin() {
+      return isSignedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.userType == 'admin';
+    }
+    
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+    
+    function isParentOf(teenId) {
+      return isParent() && request.auth.uid in get(/databases/$(database)/documents/users/$(teenId)).data.parentIds;
+    }
+    
+    // Users collection
+    match /users/{userId} {
+      // Anyone can read basic user info (for matching)
+      allow read: if isSignedIn();
+      
+      // Users can only write their own profile
+      allow create: if isSignedIn() && request.auth.uid == userId;
+      allow update, delete: if isOwner(userId);
+      
+      // Admin can read all
+      allow read, write: if isAdmin();
+      
+      // Sub-collections
+      match /profile/{profileId} {
+        allow read: if isSignedIn();
+        allow write: if isOwner(userId);
+      }
+    }
+    
+    // Jobs collection
+    match /jobs/{jobId} {
+      // Anyone can read active jobs
+      allow read: if isSignedIn() && resource.data.status == 'active';
+      
+      // Only employers can create jobs
+      allow create: if isEmployer();
+      
+      // Only the job owner or admin can modify
+      allow update, delete: if isEmployer() && resource.data.employerId == request.auth.uid || isAdmin();
+      
+      // Applications subcollection
+      match /applications/{applicationId} {
+        allow read: if isSignedIn();
+        allow create: if isTeen();
+        allow update: if isEmployer() || isParentOf(resource.data.teenId) || isOwner(resource.data.teenId);
+      }
+    }
+    
+    // Applications collection (top-level)
+    match /applications/{applicationId} {
+      allow read: if isSignedIn();
+      allow create: if isTeen();
+      allow update: if isEmployer() || isParentOf(resource.data.teenId) || isOwner(resource.data.teenId);
+      allow delete: if isOwner(resource.data.teenId) || isAdmin();
+    }
+    
+    // Messages collection
+    match /messages/{messageId} {
+      allow read, write: if isSignedIn();
+    }
+    
+    // Conversations collection
+    match /conversations/{conversationId} {
+      allow read, write: if isSignedIn() && request.auth.uid in resource.data.participants;
+      allow create: if isSignedIn();
+    }
+    
+    // Skills collection (global)
+    match /skills/{skillId} {
+      allow read: if true; // Public read
+      allow write: if isAdmin();
+    }
+    
+    // Achievements collection (global)
+    match /achievements/{achievementId} {
+      allow read: if true; // Public read
+      allow write: if isAdmin();
+    }
+    
+    // Teen achievements
+    match /users/{userId}/achievements/{achievementId} {
+      allow read: if isSignedIn();
+      allow write: if isOwner(userId) || isAdmin();
+    }
+    
+    // Admin moderation queue
+    match /moderation/{moderationId} {
+      allow read, write: if isAdmin();
+    }
+    
+    // Employer verification queue
+    match /verifications/{verificationId} {
+      allow read: if isAdmin();
+      allow create: if isEmployer();
+      allow update: if isAdmin();
+    }
+  }
+}
