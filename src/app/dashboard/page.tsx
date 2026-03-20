@@ -105,9 +105,16 @@ export default function DashboardPage() {
                     {/* Messages */}
                     <div className="bg-white rounded-xl p-6 shadow-sm">
                         <h3 className="text-lg font-semibold text-woork-navy mb-4">Messages</h3>
-                        <div className="text-center py-8">
-                            <p className="text-gray-500">No messages yet</p>
-                        </div>
+                        <Link href="/messages" className="block text-center py-4">
+                            <div className="w-16 h-16 rounded-full bg-woork-teal/20 text-woork-teal flex items-center justify-center mx-auto mb-3">
+                                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                                </svg>
+                            </div>
+                            <span className="text-woork-teal font-medium hover:underline">
+                                View Messages →
+                            </span>
+                        </Link>
                     </div>
                 </div>
 
