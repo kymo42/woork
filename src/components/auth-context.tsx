@@ -11,11 +11,13 @@ import {
     signInWithPopup,
     GithubAuthProvider
 } from "firebase/auth";
-import { auth } from "../lib/firebase";
+import { doc, getDoc } from "firebase/firestore";
+import { auth, db } from "../lib/firebase";
 
 interface AuthContextType {
     user: User | null;
     loading: boolean;
+    userType: "teen" | "parent" | "employer" | "admin" | null;
     signIn: (email: string, password: string) => Promise<void>;
     signUp: (email: string, password: string) => Promise<void>;
     signInWithGoogle: () => Promise<void>;
@@ -28,6 +30,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
+    const [userType, setUserType] = useState<"teen" | "parent" | "employer" | "admin" | null>(null);
 
     useEffect(() => {
         if (!auth) {
@@ -35,8 +38,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             return;
         }
 
-        const unsubscribe = onAuthStateChanged(auth, (user) => {
+        const unsubscribe = onAuthStateChanged(auth, async (user) => {
             setUser(user);
+
+            // Fetch userType from Firestore
+            if (user && db) {
+                try {
+                    const userDoc = await getDoc(doc(db, "users", user.uid));
+                    if (userDoc.exists()) {
+                        const data = userDoc.data();
+                        setUserType(data.userType || null);
+                    }
+                } catch (error) {
+                    console.error("Error fetching userType:", error);
+                }
+            } else {
+                setUserType(null);
+            }
+
             setLoading(false);
         });
 
@@ -74,6 +93,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         <AuthContext.Provider value={{
             user,
             loading,
+            userType,
             signIn,
             signUp,
             signInWithGoogle,
