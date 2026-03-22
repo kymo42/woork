@@ -11,11 +11,13 @@ import {
     signInWithPopup,
     GithubAuthProvider
 } from "firebase/auth";
-import { auth } from "@/lib/firebase";
+import { auth, db } from "@/lib/firebase";
+import { doc, getDoc } from "firebase/firestore";
 
 interface AuthContextType {
     user: User | null;
     loading: boolean;
+    userType: string;
     signIn: (email: string, password: string) => Promise<void>;
     signUp: (email: string, password: string) => Promise<void>;
     signInWithGoogle: () => Promise<void>;
@@ -28,6 +30,36 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function Providers({ children }: { children: ReactNode }) {
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
+    const [userType, setUserType] = useState<string>("teen");
+
+    // Fetch userType from Firestore when user changes
+    useEffect(() => {
+        if (!user) {
+            setUserType("teen");
+            return;
+        }
+
+        if (!db) {
+            setUserType("teen");
+            return;
+        }
+
+        const fetchUserType = async () => {
+            if (!db) return;
+            try {
+                const userDoc = await getDoc(doc(db, "users", user.uid));
+                if (userDoc.exists()) {
+                    const data = userDoc.data();
+                    setUserType(data.userType || "teen");
+                }
+            } catch (error) {
+                console.error("Error fetching userType:", error);
+                setUserType("teen");
+            }
+        };
+
+        fetchUserType();
+    }, [user]);
 
     useEffect(() => {
         if (!auth) {
@@ -74,6 +106,7 @@ export function Providers({ children }: { children: ReactNode }) {
         <AuthContext.Provider value={{
             user,
             loading,
+            userType,
             signIn,
             signUp,
             signInWithGoogle,

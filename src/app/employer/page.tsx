@@ -22,7 +22,7 @@ import {
     UserCheck,
     Mail
 } from "lucide-react";
-import { useAuth } from "@/components/auth-context";
+import { useAuth } from "@/components/providers";
 
 type Tab = "jobs" | "candidates" | "applications" | "messages";
 
@@ -220,8 +220,8 @@ export default function EmployerDashboard() {
                                 key={tab.key}
                                 onClick={() => setActiveTab(tab.key as Tab)}
                                 className={`flex items-center gap-2 py-4 border-b-2 transition-colors ${activeTab === tab.key
-                                        ? "border-woork-teal text-woork-teal"
-                                        : "border-transparent text-gray-500 hover:text-gray-700"
+                                    ? "border-woork-teal text-woork-teal"
+                                    : "border-transparent text-gray-500 hover:text-gray-700"
                                     }`}
                             >
                                 {tab.icon}
@@ -257,8 +257,8 @@ export default function EmployerDashboard() {
                                         <div className="flex items-center gap-3 mb-2">
                                             <h3 className="text-lg font-semibold text-woork-navy">{job.title}</h3>
                                             <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${job.status === "active"
-                                                    ? "bg-green-100 text-green-700"
-                                                    : "bg-gray-100 text-gray-700"
+                                                ? "bg-green-100 text-green-700"
+                                                : "bg-gray-100 text-gray-700"
                                                 }`}>
                                                 {job.status}
                                             </span>
@@ -334,9 +334,9 @@ export default function EmployerDashboard() {
 
                                     <div className="flex items-center gap-2">
                                         <span className={`px-2 py-1 rounded-full text-xs font-medium ${candidate.status === "new" ? "bg-blue-100 text-blue-700" :
-                                                candidate.status === "shortlisted" ? "bg-green-100 text-green-700" :
-                                                    candidate.status === "viewed" ? "bg-yellow-100 text-yellow-700" :
-                                                        "bg-gray-100 text-gray-700"
+                                            candidate.status === "shortlisted" ? "bg-green-100 text-green-700" :
+                                                candidate.status === "viewed" ? "bg-yellow-100 text-yellow-700" :
+                                                    "bg-gray-100 text-gray-700"
                                             }`}>
                                             {candidate.status}
                                         </span>

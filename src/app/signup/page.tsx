@@ -15,11 +15,13 @@ import {
     CheckCircle2
 } from "lucide-react";
 import { Turnstile } from "@/components/turnstile-provider";
+import { useAuth } from "@/components/providers";
 
 type UserType = "teen" | "parent" | "employer";
 
 export default function SignupPage() {
     const router = useRouter();
+    const { signUp } = useAuth();
     const [userType, setUserType] = useState<UserType>("teen");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -63,13 +65,11 @@ export default function SignupPage() {
         setLoading(true);
 
         try {
-            // Here we would:
-            // 1. Verify the Turnstile token with Cloudflare
-            // 2. Create the Firebase user
-            // 3. Create the user profile in Firestore
+            // Verify Turnstile token server-side (you should implement this API route)
+            // For now, we proceed with signup
 
-            // For now, just simulate a successful signup
-            console.log("Signup attempt:", { email, userType, firstName, lastName, turnstileToken });
+            // Create the Firebase user
+            await signUp(email, password);
 
             // Redirect to profile setup
             router.push(`/signup/profile?type=${userType}`);
@@ -110,8 +110,8 @@ export default function SignupPage() {
                     <button
                         onClick={() => setUserType("teen")}
                         className={`p-4 rounded-xl border-2 transition-all ${userType === "teen"
-                                ? "border-woork-teal bg-woork-teal/10"
-                                : "border-gray-200 bg-white hover:border-woork-teal/50"
+                            ? "border-woork-teal bg-woork-teal/10"
+                            : "border-gray-200 bg-white hover:border-woork-teal/50"
                             }`}
                     >
                         <User className={`w-8 h-8 mx-auto mb-2 ${userType === "teen" ? "text-woork-teal" : "text-gray-400"}`} />
@@ -122,8 +122,8 @@ export default function SignupPage() {
                     <button
                         onClick={() => setUserType("parent")}
                         className={`p-4 rounded-xl border-2 transition-all ${userType === "parent"
-                                ? "border-woork-teal bg-woork-teal/10"
-                                : "border-gray-200 bg-white hover:border-woork-teal/50"
+                            ? "border-woork-teal bg-woork-teal/10"
+                            : "border-gray-200 bg-white hover:border-woork-teal/50"
                             }`}
                     >
                         <User className={`w-8 h-8 mx-auto mb-2 ${userType === "parent" ? "text-woork-teal" : "text-gray-400"}`} />
@@ -134,8 +134,8 @@ export default function SignupPage() {
                     <button
                         onClick={() => setUserType("employer")}
                         className={`p-4 rounded-xl border-2 transition-all ${userType === "employer"
-                                ? "border-woork-teal bg-woork-teal/10"
-                                : "border-gray-200 bg-white hover:border-woork-teal/50"
+                            ? "border-woork-teal bg-woork-teal/10"
+                            : "border-gray-200 bg-white hover:border-woork-teal/50"
                             }`}
                     >
                         <Building2 className={`w-8 h-8 mx-auto mb-2 ${userType === "employer" ? "text-woork-teal" : "text-gray-400"}`} />

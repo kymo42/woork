@@ -18,7 +18,7 @@ import {
     Mail,
     Shield
 } from "lucide-react";
-import { useAuth } from "@/components/auth-context";
+import { useAuth } from "@/components/providers";
 
 type Step = "basics" | "location" | "skills" | "experience" | "availability" | "review";
 
@@ -578,8 +578,8 @@ export default function ProfilePage() {
                                             key={time}
                                             onClick={() => toggleAvailability(day, time)}
                                             className={`px-3 py-2 rounded-lg text-sm transition-colors ${(profile.availability[day] || []).includes(time)
-                                                    ? "bg-woork-teal text-white"
-                                                    : "bg-white border border-gray-200 text-gray-600 hover:border-woork-teal"
+                                                ? "bg-woork-teal text-white"
+                                                : "bg-white border border-gray-200 text-gray-600 hover:border-woork-teal"
                                                 }`}
                                         >
                                             {time.replace(" (", "\n(")}

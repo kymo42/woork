@@ -3,10 +3,10 @@
 import { useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/components/auth-context";
+import { useAuth } from "@/components/providers";
 
 export default function DashboardPage() {
-    const { user, loading } = useAuth();
+    const { user, loading, signOut } = useAuth();
     const router = useRouter();
 
     useEffect(() => {
@@ -45,8 +45,8 @@ export default function DashboardPage() {
                         <div className="flex items-center gap-4">
                             <span className="text-sm text-gray-600">{user.email}</span>
                             <button
-                                onClick={() => {
-                                    // Sign out logic here
+                                onClick={async () => {
+                                    await signOut();
                                     router.push("/");
                                 }}
                                 className="text-sm text-gray-600 hover:text-woork-navy"

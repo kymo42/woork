@@ -42,7 +42,10 @@ export function Turnstile({ onVerify, theme = "light" }: TurnstileProps) {
         document.body.appendChild(script);
 
         return () => {
-            document.body.removeChild(script);
+            // Check if script still exists before removing
+            if (document.body.contains(script)) {
+                document.body.removeChild(script);
+            }
         };
     }, []);
 

@@ -13,7 +13,7 @@ import {
     Chrome,
     Github
 } from "lucide-react";
-import { useAuth } from "@/components/auth-context";
+import { useAuth } from "@/components/providers";
 
 export default function LoginPage() {
     const router = useRouter();

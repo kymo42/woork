@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/components/auth-context";
+import { useAuth } from "@/components/providers";
 import { db } from "@/lib/firebase";
 import {
     collection, query, where, orderBy, onSnapshot, addDoc,
@@ -55,9 +55,12 @@ export default function MessagesPage() {
     useEffect(() => {
         if (!user || !db) return;
 
+        // Capture db in local variable to fix TypeScript narrowing
+        const firestore = db;
+
         // Subscribe to conversations
         const convQuery = query(
-            collection(db, "conversations"),
+            collection(firestore, "conversations"),
             where("participants", "array-contains", user.uid),
             orderBy("lastMessageAt", "desc")
         );
@@ -75,7 +78,7 @@ export default function MessagesPage() {
                 for (const pid of data.participants || []) {
                     if (pid === user.uid) continue;
                     try {
-                        const userDoc = await getDoc(doc(db, "users", pid));
+                        const userDoc = await getDoc(doc(firestore, "users", pid));
                         if (userDoc.exists()) {
                             const ud = userDoc.data();
                             participantNames[pid] = ud.firstName ? `${ud.firstName} ${ud.lastName}` : ud.companyName || "User";
@@ -109,8 +112,10 @@ export default function MessagesPage() {
     useEffect(() => {
         if (!selectedConversation || !db) return;
 
+        const firestore = db;
+
         const msgQuery = query(
-            collection(db, "messages"),
+            collection(firestore, "messages"),
             where("conversationId", "==", selectedConversation.id),
             orderBy("createdAt", "asc"),
             limit(100)
@@ -145,18 +150,17 @@ export default function MessagesPage() {
         e.preventDefault();
         if (!newMessage.trim() || !selectedConversation || !user || !db) return;
 
+        const firestore = db;
         setSending(true);
         try {
-            if (!db) throw new Error("Database not initialized");
-
             // Get sender name
-            const userDoc = await getDoc(doc(db, "users", user.uid));
+            const userDoc = await getDoc(doc(firestore, "users", user.uid));
             const senderName = userDoc.exists()
                 ? (userDoc.data().firstName ? `${userDoc.data().firstName} ${userDoc.data().lastName}` : userDoc.data().companyName)
                 : "User";
 
             // Add message
-            await addDoc(collection(db, "messages"), {
+            await addDoc(collection(firestore, "messages"), {
                 conversationId: selectedConversation.id,
                 senderId: user.uid,
                 senderName,
@@ -170,7 +174,7 @@ export default function MessagesPage() {
 
             // Update conversation
             const otherParticipant = selectedConversation.participants.find(p => p !== user.uid) || "";
-            await updateDoc(doc(db, "conversations", selectedConversation.id), {
+            await updateDoc(doc(firestore, "conversations", selectedConversation.id), {
                 lastMessage: newMessage.trim(),
                 lastMessageAt: serverTimestamp(),
                 [`unreadCount.${otherParticipant}`]: (selectedConversation.unreadCount[otherParticipant] || 0) + 1
@@ -187,14 +191,16 @@ export default function MessagesPage() {
     const startConversation = async (otherUserId: string, jobId?: string, jobTitle?: string) => {
         if (!user || !db) return;
 
+        const firestore = db;
+
         // Check if conversation exists
         const existingQuery = query(
-            collection(db, "conversations"),
+            collection(firestore, "conversations"),
             where("participants", "array-contains", user.uid)
         );
 
         // For now, create new conversation
-        const convRef = await addDoc(collection(db, "conversations"), {
+        const convRef = await addDoc(collection(firestore, "conversations"), {
             participants: [user.uid, otherUserId],
             jobId: jobId || null,
             jobTitle: jobTitle || null,
