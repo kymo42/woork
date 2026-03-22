@@ -19,6 +19,9 @@ const nextConfig: NextConfig = {
     },
 };
 
-export default nextConfig;
+// Only import cloudflare adapter in development
+if (process.env.NODE_ENV === 'development') {
+    import('@opennextjs/cloudflare').then(m => m.initOpenNextCloudflareForDev());
+}
 
-import('@opennextjs/cloudflare').then(m => m.initOpenNextCloudflareForDev());
+export default nextConfig;
