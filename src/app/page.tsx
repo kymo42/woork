@@ -100,27 +100,27 @@ export default function Home() {
                             </div>
                         </div>
 
-                        <div className="relative hidden lg:block">
-                            <div className="absolute inset-0 bg-gradient-to-r from-woork-teal/20 to-woork-coral/20 rounded-3xl blur-3xl" />
-                            <div className="relative bg-white rounded-3xl shadow-2xl p-8 border border-gray-100">
-                                {/* Mock Phone Screen */}
-                                <div className="bg-gradient-to-br from-woork-navy to-woork-teal rounded-2xl p-6 text-white">
-                                    <div className="flex items-center justify-between mb-6">
+                        <div className="relative">
+                            <div className="absolute inset-0 bg-gradient-to-r from-woork-teal/20 to-woork-coral/20 rounded-3xl blur-3xl hidden lg:block" />
+                            <div className="relative bg-white rounded-3xl shadow-2xl p-4 lg:p-8 border border-gray-100">
+                                {/* Mock Phone Screen - shown on mobile too */}
+                                <div className="bg-gradient-to-br from-woork-navy to-woork-teal rounded-2xl p-4 lg:p-6 text-white">
+                                    <div className="flex items-center justify-between mb-4 lg:mb-6">
                                         <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 rounded-full bg-white/20" />
+                                            <div className="w-8 h-8 lg:w-10 lg:h-10 rounded-full bg-white/20" />
                                             <div>
-                                                <div className="text-sm font-medium">Welcome back,</div>
-                                                <div className="text-lg font-bold">Alex!</div>
+                                                <div className="text-xs lg:text-sm font-medium">Welcome back,</div>
+                                                <div className="text-base lg:text-lg font-bold">Alex!</div>
                                             </div>
                                         </div>
-                                        <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
-                                            <Heart className="w-4 h-4" />
+                                        <div className="w-6 h-6 lg:w-8 lg:h-8 rounded-full bg-white/20 flex items-center justify-center">
+                                            <Heart className="w-3 h-3 lg:w-4 lg:h-4" />
                                         </div>
                                     </div>
 
-                                    <div className="bg-white/10 rounded-xl p-4 mb-4">
+                                    <div className="bg-white/10 rounded-xl p-3 lg:p-4 mb-3 lg:mb-4">
                                         <div className="text-xs text-white/70 mb-1">Your Skills Score</div>
-                                        <div className="text-2xl font-bold">Level 5</div>
+                                        <div className="text-xl lg:text-2xl font-bold">Level 5</div>
                                         <div className="flex gap-1 mt-2">
                                             {[1, 2, 3, 4, 5].map(i => (
                                                 <div key={i} className="h-2 flex-1 bg-white/30 rounded-full overflow-hidden">
@@ -131,27 +131,27 @@ export default function Home() {
                                     </div>
                                 </div>
 
-                                <div className="space-y-4 mt-6">
-                                    <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-xl">
-                                        <div className="w-12 h-12 rounded-xl bg-woork-teal/10 flex items-center justify-center">
-                                            <MapPin className="w-6 h-6 text-woork-teal" />
+                                <div className="space-y-3 lg:space-y-4 mt-4 lg:mt-6">
+                                    <div className="flex items-center gap-3 lg:gap-4 p-3 lg:p-4 bg-gray-50 rounded-xl">
+                                        <div className="w-10 lg:w-12 h-10 lg:h-12 rounded-xl bg-woork-teal/10 flex items-center justify-center">
+                                            <MapPin className="w-5 lg:w-6 h-5 lg:h-6 text-woork-teal" />
                                         </div>
                                         <div className="flex-1">
-                                            <div className="font-medium text-woork-navy">5 new jobs nearby</div>
-                                            <div className="text-sm text-gray-500">In Sydney NSW 2000</div>
+                                            <div className="font-medium text-woork-navy text-sm lg:text-base">5 new jobs nearby</div>
+                                            <div className="text-xs lg:text-sm text-gray-500">In Sydney NSW 2000</div>
                                         </div>
-                                        <ArrowRight className="w-5 h-5 text-gray-400" />
+                                        <ArrowRight className="w-4 lg:w-5 h-4 lg:h-5 text-gray-400" />
                                     </div>
 
-                                    <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-xl">
-                                        <div className="w-12 h-12 rounded-xl bg-woork-coral/10 flex items-center justify-center">
-                                            <Users className="w-6 h-6 text-woork-coral" />
+                                    <div className="flex items-center gap-3 lg:gap-4 p-3 lg:p-4 bg-gray-50 rounded-xl">
+                                        <div className="w-10 lg:w-12 h-10 lg:h-12 rounded-xl bg-woork-coral/10 flex items-center justify-center">
+                                            <Users className="w-5 lg:w-6 h-5 lg:h-6 text-woork-coral" />
                                         </div>
                                         <div className="flex-1">
-                                            <div className="font-medium text-woork-navy">3 employers viewed your profile</div>
-                                            <div className="text-sm text-gray-500">Today</div>
+                                            <div className="font-medium text-woork-navy text-sm lg:text-base">3 employers viewed your profile</div>
+                                            <div className="text-xs lg:text-sm text-gray-500">Today</div>
                                         </div>
-                                        <ArrowRight className="w-5 h-5 text-gray-400" />
+                                        <ArrowRight className="w-4 lg:w-5 h-4 lg:h-5 text-gray-400" />
                                     </div>
                                 </div>
                             </div>
