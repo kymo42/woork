@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
@@ -37,7 +37,7 @@ interface FormData {
     abn: string;
 }
 
-export default function ProfileSetupPage() {
+function ProfileSetupContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const { user } = useAuth();
@@ -469,5 +469,24 @@ export default function ProfileSetupPage() {
                 </div>
             </main>
         </div>
+    );
+}
+
+function LoadingFallback() {
+    return (
+        <div className="min-h-screen flex items-center justify-center">
+            <div className="text-center">
+                <Loader2 className="w-8 h-8 animate-spin text-woork-teal mx-auto" />
+                <p className="mt-4 text-gray-600">Loading...</p>
+            </div>
+        </div>
+    );
+}
+
+export default function ProfileSetupPage() {
+    return (
+        <Suspense fallback={<LoadingFallback />}>
+            <ProfileSetupContent />
+        </Suspense>
     );
 }
