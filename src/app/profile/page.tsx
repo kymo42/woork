@@ -16,11 +16,18 @@ import {
     Upload,
     Phone,
     Mail,
-    Shield
+    Shield,
+    Search,
+    BookOpen,
+    Save,
+    Star,
+    Building2,
+    Lightbulb,
+    Trash2
 } from "lucide-react";
 import { useAuth } from "@/components/providers";
 
-type Step = "basics" | "location" | "skills" | "experience" | "availability" | "review";
+type Step = "basics" | "location" | "skills" | "experience" | "availability" | "research" | "review";
 
 interface ProfileData {
     // Basics
@@ -62,6 +69,17 @@ interface ProfileData {
     availability: {
         [key: string]: string[];
     };
+
+    // Research Notes
+    researchNotes: {
+        id: string;
+        title: string;
+        content: string;
+        type: "employer" | "job" | "industry" | "general";
+        tags: string[];
+        createdAt: string;
+        updatedAt: string;
+    }[];
 }
 
 const AUSTRALIAN_STATES = [
@@ -124,6 +142,7 @@ export default function ProfilePage() {
             saturday: [],
             sunday: [],
         },
+        researchNotes: [],
     });
 
     const steps: { key: Step; label: string; icon: React.ReactNode }[] = [
@@ -132,6 +151,7 @@ export default function ProfilePage() {
         { key: "skills", label: "Skills", icon: <Check className="w-5 h-5" /> },
         { key: "experience", label: "Experience", icon: <Briefcase className="w-5 h-5" /> },
         { key: "availability", label: "Availability", icon: <Calendar className="w-5 h-5" /> },
+        { key: "research", label: "Research", icon: <BookOpen className="w-5 h-5" /> },
         { key: "review", label: "Review", icon: <Check className="w-5 h-5" /> },
     ];
 
@@ -603,6 +623,190 @@ export default function ProfilePage() {
                         <div className="bg-woork-coral/10 rounded-xl p-4">
                             <h4 className="font-medium text-woork-navy mb-2">School holidays?</h4>
                             <p className="text-sm text-gray-600">You'll be able to update your availability during school holidays</p>
+                        </div>
+                    </div>
+                );
+
+            case "research":
+                // Industry information for teens to research
+                const industries = [
+                    { id: "retail", name: "Retail & Customer Service", desc: "Working in shops, helping customers, handling money", icon: "🛒" },
+                    { id: "hospitality", name: "Hospitality & Food", desc: "Cafes, restaurants, hotels, food preparation", icon: "🍽️" },
+                    { id: "healthcare", name: "Healthcare & Childcare", desc: "Aged care, childcare, health support", icon: "🏥" },
+                    { id: "administration", name: "Administration & Office", desc: "Office work, data entry, customer service", icon: "💼" },
+                    { id: "trades", name: "Trades & Construction", desc: "Building, electrical, plumbing, automotive", icon: "🔧" },
+                    { id: "technology", name: "Technology & IT", desc: "Coding, tech support, digital media", icon: "💻" },
+                    { id: "sports", name: "Sports & Recreation", desc: "Gym, sports coaching, recreation centres", icon: "⚽" },
+                    { id: "entertainment", name: "Entertainment & Events", desc: "Events, photography, performing arts", icon: "🎭" },
+                ];
+
+                return (
+                    <div className="space-y-6">
+                        <div className="text-center mb-8">
+                            <div className="w-24 h-24 rounded-full bg-woork-teal/20 mx-auto mb-4 flex items-center justify-center">
+                                <BookOpen className="w-12 h-12 text-woork-teal" />
+                            </div>
+                            <h2 className="text-xl font-bold text-woork-navy">Research Jobs & Employers</h2>
+                            <p className="text-gray-600">Learn about different jobs before you apply!</p>
+                        </div>
+
+                        {/* Industry Exploration */}
+                        <div className="bg-gradient-to-r from-woork-teal/10 to-woork-navy/10 rounded-xl p-4">
+                            <h3 className="font-semibold text-woork-navy mb-3 flex items-center gap-2">
+                                <Lightbulb className="w-5 h-5 text-woork-teal" />
+                                Explore Industries
+                            </h3>
+                            <p className="text-sm text-gray-600 mb-4">
+                                Not sure what you want to do? Click on an industry to learn what it's like!
+                            </p>
+                            <div className="grid grid-cols-2 gap-2">
+                                {industries.map(ind => (
+                                    <button
+                                        key={ind.id}
+                                        className="text-left p-3 bg-white rounded-lg hover:shadow-md transition-shadow border border-gray-100"
+                                    >
+                                        <div className="text-2xl mb-1">{ind.icon}</div>
+                                        <div className="font-medium text-woork-navy text-sm">{ind.name}</div>
+                                        <div className="text-xs text-gray-500">{ind.desc}</div>
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Research Notes Section */}
+                        <div className="bg-white rounded-xl p-4 border border-gray-200">
+                            <h3 className="font-semibold text-woork-navy mb-3 flex items-center gap-2">
+                                <Save className="w-5 h-5 text-woork-coral" />
+                                Your Research Notes
+                            </h3>
+                            <p className="text-sm text-gray-600 mb-4">
+                                Save notes about jobs and employers you're interested in!
+                            </p>
+
+                            {profile.researchNotes && profile.researchNotes.length > 0 ? (
+                                <div className="space-y-3 mb-4">
+                                    {profile.researchNotes.map((note) => (
+                                        <div key={note.id} className="p-3 bg-gray-50 rounded-lg">
+                                            <div className="flex items-start justify-between">
+                                                <div>
+                                                    <div className="flex items-center gap-2">
+                                                        <span className={`text-xs px-2 py-0.5 rounded-full ${note.type === "employer" ? "bg-blue-100 text-blue-700" :
+                                                                note.type === "job" ? "bg-green-100 text-green-700" :
+                                                                    note.type === "industry" ? "bg-purple-100 text-purple-700" :
+                                                                        "bg-gray-100 text-gray-700"
+                                                            }`}>
+                                                            {note.type}
+                                                        </span>
+                                                        <span className="font-medium text-woork-navy">{note.title}</span>
+                                                    </div>
+                                                    <p className="text-sm text-gray-600 mt-1">{note.content}</p>
+                                                    {note.tags.length > 0 && (
+                                                        <div className="flex flex-wrap gap-1 mt-2">
+                                                            {note.tags.map((tag, i) => (
+                                                                <span key={i} className="text-xs bg-gray-200 text-gray-600 px-2 py-0.5 rounded">
+                                                                    #{tag}
+                                                                </span>
+                                                            ))}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                                <button
+                                                    onClick={() => {
+                                                        setProfile({
+                                                            ...profile,
+                                                            researchNotes: profile.researchNotes.filter(n => n.id !== note.id)
+                                                        });
+                                                    }}
+                                                    className="text-gray-400 hover:text-red-500"
+                                                >
+                                                    <Trash2 className="w-4 h-4" />
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="text-center py-6 text-gray-500 bg-gray-50 rounded-lg mb-4">
+                                    <BookOpen className="w-8 h-8 mx-auto mb-2 text-gray-300" />
+                                    <p className="text-sm">No research notes yet</p>
+                                    <p className="text-xs">Start researching jobs and employers!</p>
+                                </div>
+                            )}
+
+                            {/* Add Note Form */}
+                            <div className="border-t pt-4">
+                                <p className="text-sm font-medium text-woork-navy mb-2">Add a new note</p>
+                                <div className="space-y-2">
+                                    <input
+                                        type="text"
+                                        placeholder="What are you researching? (e.g., 'McDonalds', 'Retail Assistant')"
+                                        className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm"
+                                        id="researchTitle"
+                                    />
+                                    <textarea
+                                        placeholder="Write your notes here... What did you learn? What do you like about it?"
+                                        className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm"
+                                        rows={2}
+                                        id="researchContent"
+                                    />
+                                    <div className="flex gap-2">
+                                        <select className="px-3 py-2 border border-gray-200 rounded-lg text-sm" id="researchType">
+                                            <option value="general">General</option>
+                                            <option value="employer">Employer</option>
+                                            <option value="job">Job Type</option>
+                                            <option value="industry">Industry</option>
+                                        </select>
+                                        <input
+                                            type="text"
+                                            placeholder="Tags (comma separated)"
+                                            className="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm"
+                                            id="researchTags"
+                                        />
+                                        <button
+                                            onClick={() => {
+                                                const titleInput = document.getElementById("researchTitle") as HTMLInputElement;
+                                                const contentInput = document.getElementById("researchContent") as HTMLTextAreaElement;
+                                                const typeSelect = document.getElementById("researchType") as HTMLSelectElement;
+                                                const tagsInput = document.getElementById("researchTags") as HTMLInputElement;
+
+                                                if (titleInput.value.trim()) {
+                                                    const newNote = {
+                                                        id: Date.now().toString(),
+                                                        title: titleInput.value,
+                                                        content: contentInput.value,
+                                                        type: typeSelect.value as "employer" | "job" | "industry" | "general",
+                                                        tags: tagsInput.value.split(",").map(t => t.trim()).filter(t => t),
+                                                        createdAt: new Date().toISOString(),
+                                                        updatedAt: new Date().toISOString()
+                                                    };
+                                                    setProfile({
+                                                        ...profile,
+                                                        researchNotes: [...(profile.researchNotes || []), newNote]
+                                                    });
+                                                    titleInput.value = "";
+                                                    contentInput.value = "";
+                                                    tagsInput.value = "";
+                                                }
+                                            }}
+                                            className="px-4 py-2 bg-woork-teal text-white rounded-lg text-sm hover:bg-woork-teal/90"
+                                        >
+                                            Save Note
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Tips */}
+                        <div className="bg-woork-navy/5 rounded-xl p-4">
+                            <h3 className="font-semibold text-woork-navy mb-2">💡 Research Tips</h3>
+                            <ul className="text-sm text-gray-600 space-y-1">
+                                <li>• Look up companies you're interested in on their website</li>
+                                <li>• Check reviews on Google or Indeed to see what employees say</li>
+                                <li>• Ask parents or friends about their work experiences</li>
+                                <li>• Watch videos about different jobs on YouTube</li>
+                                <li>• Take notes so you remember why you want to apply!</li>
+                            </ul>
                         </div>
                     </div>
                 );

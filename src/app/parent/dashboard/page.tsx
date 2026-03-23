@@ -6,6 +6,7 @@ import { useAuth } from "@/components/providers";
 import { db } from "@/lib/firebase";
 import { doc, getDoc, collection, query, where, getDocs, updateDoc } from "firebase/firestore";
 import Link from "next/link";
+import { X, User, Phone, Mail, MapPin } from "lucide-react";
 
 interface LinkedTeen {
     id: string;
@@ -38,6 +39,15 @@ export default function ParentDashboard() {
     const [linkedTeens, setLinkedTeens] = useState<LinkedTeen[]>([]);
     const [pendingApplications, setPendingApplications] = useState<Application[]>([]);
     const [parentData, setParentData] = useState<any>(null);
+    const [showProfileEdit, setShowProfileEdit] = useState(false);
+    const [savingProfile, setSavingProfile] = useState(false);
+    const [profileFormData, setProfileFormData] = useState({
+        firstName: "",
+        lastName: "",
+        phone: "",
+        email: "",
+        address: ""
+    });
 
     useEffect(() => {
         if (!authLoading && !user) {
@@ -448,7 +458,19 @@ export default function ParentDashboard() {
                         <div className="bg-slate-800/50 rounded-2xl p-6 border border-slate-700">
                             <h3 className="font-medium text-white mb-4">Account Settings</h3>
                             <div className="space-y-4">
-                                <button className="w-full text-left p-4 bg-slate-700/30 rounded-xl hover:bg-slate-700/50 transition-colors">
+                                <button
+                                    onClick={() => {
+                                        setProfileFormData({
+                                            firstName: parentData?.firstName || "",
+                                            lastName: parentData?.lastName || "",
+                                            phone: parentData?.phone || "",
+                                            email: parentData?.email || user?.email || "",
+                                            address: parentData?.address || ""
+                                        });
+                                        setShowProfileEdit(true);
+                                    }}
+                                    className="w-full text-left p-4 bg-slate-700/30 rounded-xl hover:bg-slate-700/50 transition-colors"
+                                >
                                     <div className="font-medium text-white">Update Profile</div>
                                     <div className="text-sm text-slate-400">Change your name and contact details</div>
                                 </button>
@@ -461,6 +483,136 @@ export default function ParentDashboard() {
                                     <div className="text-sm text-slate-400">Remove your account and linked teens</div>
                                 </button>
                             </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* Profile Edit Modal */}
+                {showProfileEdit && (
+                    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+                        <div className="bg-slate-800 rounded-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto border border-slate-700">
+                            <div className="p-6 border-b border-slate-700">
+                                <div className="flex items-center justify-between">
+                                    <h2 className="text-xl font-semibold text-white">Update Profile</h2>
+                                    <button
+                                        onClick={() => setShowProfileEdit(false)}
+                                        className="text-slate-400 hover:text-white"
+                                    >
+                                        <X className="w-6 h-6" />
+                                    </button>
+                                </div>
+                            </div>
+                            <form onSubmit={async (e) => {
+                                e.preventDefault();
+                                if (!db || !user) return;
+                                setSavingProfile(true);
+                                try {
+                                    await updateDoc(doc(db, "users", user.uid), {
+                                        firstName: profileFormData.firstName,
+                                        lastName: profileFormData.lastName,
+                                        phone: profileFormData.phone,
+                                        address: profileFormData.address,
+                                        updatedAt: new Date().toISOString()
+                                    });
+                                    setParentData({
+                                        ...parentData,
+                                        firstName: profileFormData.firstName,
+                                        lastName: profileFormData.lastName,
+                                        phone: profileFormData.phone,
+                                        address: profileFormData.address
+                                    });
+                                    setShowProfileEdit(false);
+                                } catch (error) {
+                                    console.error("Error updating profile:", error);
+                                    alert("Failed to update profile. Please try again.");
+                                } finally {
+                                    setSavingProfile(false);
+                                }
+                            }} className="p-6 space-y-4">
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-sm font-medium text-slate-300 mb-1">First Name</label>
+                                        <div className="relative">
+                                            <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
+                                            <input
+                                                type="text"
+                                                value={profileFormData.firstName}
+                                                onChange={(e) => setProfileFormData({ ...profileFormData, firstName: e.target.value })}
+                                                className="w-full pl-10 pr-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:ring-2 focus:ring-woork-teal focus:border-transparent"
+                                                required
+                                            />
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-slate-300 mb-1">Last Name</label>
+                                        <div className="relative">
+                                            <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
+                                            <input
+                                                type="text"
+                                                value={profileFormData.lastName}
+                                                onChange={(e) => setProfileFormData({ ...profileFormData, lastName: e.target.value })}
+                                                className="w-full pl-10 pr-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:ring-2 focus:ring-woork-teal focus:border-transparent"
+                                                required
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-300 mb-1">Phone</label>
+                                    <div className="relative">
+                                        <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
+                                        <input
+                                            type="tel"
+                                            value={profileFormData.phone}
+                                            onChange={(e) => setProfileFormData({ ...profileFormData, phone: e.target.value })}
+                                            className="w-full pl-10 pr-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:ring-2 focus:ring-woork-teal focus:border-transparent"
+                                            placeholder="Contact number"
+                                        />
+                                    </div>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-300 mb-1">Email</label>
+                                    <div className="relative">
+                                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
+                                        <input
+                                            type="email"
+                                            value={profileFormData.email}
+                                            disabled
+                                            className="w-full pl-10 pr-4 py-2 bg-slate-700/50 border border-slate-600 rounded-lg text-slate-400 cursor-not-allowed"
+                                        />
+                                    </div>
+                                    <p className="text-xs text-slate-500 mt-1">Email cannot be changed</p>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-300 mb-1">Address</label>
+                                    <div className="relative">
+                                        <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
+                                        <input
+                                            type="text"
+                                            value={profileFormData.address}
+                                            onChange={(e) => setProfileFormData({ ...profileFormData, address: e.target.value })}
+                                            className="w-full pl-10 pr-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:ring-2 focus:ring-woork-teal focus:border-transparent"
+                                            placeholder="Your address"
+                                        />
+                                    </div>
+                                </div>
+                                <div className="flex gap-3 pt-4">
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowProfileEdit(false)}
+                                        className="flex-1 px-4 py-2 border border-slate-600 text-white rounded-lg hover:bg-slate-700 transition-colors"
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        disabled={savingProfile}
+                                        className="flex-1 px-4 py-2 bg-woork-teal text-white rounded-lg hover:bg-woork-teal/90 transition-colors disabled:opacity-50"
+                                    >
+                                        {savingProfile ? "Saving..." : "Save Changes"}
+                                    </button>
+                                </div>
+                            </form>
                         </div>
                     </div>
                 )}

@@ -20,11 +20,17 @@ import {
     DollarSign,
     TrendingUp,
     UserCheck,
-    Mail
+    Mail,
+    Settings,
+    Save,
+    Phone,
+    X
 } from "lucide-react";
 import { useAuth } from "@/components/providers";
+import { db } from "@/lib/firebase";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
 
-type Tab = "jobs" | "candidates" | "applications" | "messages";
+type Tab = "jobs" | "candidates" | "applications" | "messages" | "company";
 
 interface Job {
     id: string;
@@ -101,6 +107,41 @@ export default function EmployerDashboard() {
     const router = useRouter();
     const [activeTab, setActiveTab] = useState<Tab>("jobs");
     const [searchQuery, setSearchQuery] = useState("");
+    const [showCompanyEdit, setShowCompanyEdit] = useState(false);
+    const [companyInfo, setCompanyInfo] = useState<{
+        companyName: string;
+        companyPosition: string;
+        abn: string;
+        phone: string;
+        address: string;
+        suburb: string;
+        state: string;
+        postcode: string;
+        website: string;
+        description: string;
+        industry: string;
+    }>({
+        companyName: "",
+        companyPosition: "",
+        abn: "",
+        phone: "",
+        address: "",
+        suburb: "",
+        state: "",
+        postcode: "",
+        website: "",
+        description: "",
+        industry: ""
+    });
+    const [companyFormData, setCompanyFormData] = useState({
+        companyName: "",
+        industry: "",
+        phone: "",
+        website: "",
+        address: "",
+        description: ""
+    });
+    const [savingCompany, setSavingCompany] = useState(false);
 
     useEffect(() => {
         if (!authLoading && !user) {
@@ -120,6 +161,7 @@ export default function EmployerDashboard() {
         { key: "candidates", label: "Candidates", icon: <Users className="w-4 h-4" /> },
         { key: "applications", label: "Applications", icon: <UserCheck className="w-4 h-4" /> },
         { key: "messages", label: "Messages", icon: <Mail className="w-4 h-4" /> },
+        { key: "company", label: "Company Info", icon: <Building2 className="w-4 h-4" /> },
     ];
 
     if (authLoading) {
@@ -155,12 +197,13 @@ export default function EmployerDashboard() {
                                 🎮 Create Challenge
                             </Link>
                             <div className="flex items-center gap-2">
-                                <Link href="/employer/dashboard" className="flex items-center gap-2 hover:bg-gray-100 rounded-lg px-2 py-1 transition-colors">
-                                    <div className="w-8 h-8 rounded-full bg-woork-navy text-white flex items-center justify-center text-sm font-medium">
-                                        {user?.email?.charAt(0).toUpperCase() || "U"}
-                                    </div>
-                                    <span className="text-sm text-gray-700 hidden sm:inline">Dashboard</span>
-                                </Link>
+                                <button
+                                    onClick={() => setShowCompanyEdit(true)}
+                                    className="flex items-center gap-2 hover:bg-gray-100 rounded-lg px-2 py-1 transition-colors"
+                                >
+                                    <Building2 className="w-5 h-5 text-gray-600" />
+                                    <span className="text-sm text-gray-700 hidden sm:inline">Edit Company</span>
+                                </button>
                                 <button
                                     onClick={async () => {
                                         await signOut();
@@ -392,7 +435,185 @@ export default function EmployerDashboard() {
                         <p className="text-gray-500">Start a conversation with candidates to message them</p>
                     </div>
                 )}
+
+                {/* Company Info Tab */}
+                {activeTab === "company" && (
+                    <div className="bg-white rounded-xl p-6">
+                        <h2 className="text-xl font-semibold text-woork-navy mb-6">Company Information</h2>
+                        {companyInfo ? (
+                            <div className="grid md:grid-cols-2 gap-6">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Company Name</label>
+                                    <p className="text-gray-900">{companyInfo.companyName || "Not set"}</p>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Industry</label>
+                                    <p className="text-gray-900">{companyInfo.industry || "Not set"}</p>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+                                    <p className="text-gray-900">{companyInfo.phone || "Not set"}</p>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Website</label>
+                                    <p className="text-gray-900">{companyInfo.website || "Not set"}</p>
+                                </div>
+                                <div className="md:col-span-2">
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
+                                    <p className="text-gray-900">{companyInfo.address || "Not set"}</p>
+                                </div>
+                                <div className="md:col-span-2">
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                                    <p className="text-gray-900">{companyInfo.description || "Not set"}</p>
+                                </div>
+                            </div>
+                        ) : (
+                            <p className="text-gray-500">Loading company information...</p>
+                        )}
+                    </div>
+                )}
             </main>
+
+            {/* Company Edit Modal */}
+            {showCompanyEdit && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+                    <div className="bg-white rounded-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
+                        <div className="p-6 border-b border-gray-100">
+                            <div className="flex items-center justify-between">
+                                <h2 className="text-xl font-semibold text-woork-navy">Edit Company Info</h2>
+                                <button
+                                    onClick={() => setShowCompanyEdit(false)}
+                                    className="text-gray-400 hover:text-gray-600"
+                                >
+                                    <X className="w-6 h-6" />
+                                </button>
+                            </div>
+                        </div>
+                        <form onSubmit={async (e) => {
+                            e.preventDefault();
+                            if (!db || !user) return;
+                            setSavingCompany(true);
+                            try {
+                                await updateDoc(doc(db, "users", user.uid), {
+                                    companyName: companyFormData.companyName,
+                                    industry: companyFormData.industry,
+                                    phone: companyFormData.phone,
+                                    website: companyFormData.website,
+                                    address: companyFormData.address,
+                                    description: companyFormData.description,
+                                    updatedAt: new Date().toISOString()
+                                });
+                                setCompanyInfo({
+                                    companyName: companyFormData.companyName,
+                                    companyPosition: "",
+                                    abn: "",
+                                    phone: companyFormData.phone,
+                                    address: companyFormData.address,
+                                    suburb: "",
+                                    state: "",
+                                    postcode: "",
+                                    website: companyFormData.website,
+                                    description: companyFormData.description,
+                                    industry: companyFormData.industry
+                                });
+                                setShowCompanyEdit(false);
+                            } catch (error) {
+                                console.error("Error updating company:", error);
+                                alert("Failed to update company info. Please try again.");
+                            } finally {
+                                setSavingCompany(false);
+                            }
+                        }} className="p-6 space-y-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Company Name</label>
+                                <input
+                                    type="text"
+                                    value={companyFormData.companyName}
+                                    onChange={(e) => setCompanyFormData({ ...companyFormData, companyName: e.target.value })}
+                                    className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-woork-teal focus:border-transparent"
+                                    placeholder="Your company name"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Industry</label>
+                                <select
+                                    value={companyFormData.industry}
+                                    onChange={(e) => setCompanyFormData({ ...companyFormData, industry: e.target.value })}
+                                    className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-woork-teal focus:border-transparent"
+                                >
+                                    <option value="">Select industry</option>
+                                    <option value="retail">Retail & Customer Service</option>
+                                    <option value="hospitality">Hospitality & Food Service</option>
+                                    <option value="healthcare">Healthcare & Childcare</option>
+                                    <option value="administration">Administration & Office</option>
+                                    <option value="trades">Trades & Construction</option>
+                                    <option value="technology">Technology & IT</option>
+                                    <option value="sports">Sports & Recreation</option>
+                                    <option value="entertainment">Entertainment & Events</option>
+                                    <option value="agriculture">Agriculture & Environment</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+                                <input
+                                    type="tel"
+                                    value={companyFormData.phone}
+                                    onChange={(e) => setCompanyFormData({ ...companyFormData, phone: e.target.value })}
+                                    className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-woork-teal focus:border-transparent"
+                                    placeholder="Contact phone number"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Website</label>
+                                <input
+                                    type="url"
+                                    value={companyFormData.website}
+                                    onChange={(e) => setCompanyFormData({ ...companyFormData, website: e.target.value })}
+                                    className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-woork-teal focus:border-transparent"
+                                    placeholder="https://yourcompany.com.au"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
+                                <input
+                                    type="text"
+                                    value={companyFormData.address}
+                                    onChange={(e) => setCompanyFormData({ ...companyFormData, address: e.target.value })}
+                                    className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-woork-teal focus:border-transparent"
+                                    placeholder="Full business address"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                                <textarea
+                                    value={companyFormData.description}
+                                    onChange={(e) => setCompanyFormData({ ...companyFormData, description: e.target.value })}
+                                    rows={4}
+                                    className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-woork-teal focus:border-transparent"
+                                    placeholder="Tell us about your company and what makes it great for young workers..."
+                                />
+                            </div>
+                            <div className="flex gap-3 pt-4">
+                                <button
+                                    type="button"
+                                    onClick={() => setShowCompanyEdit(false)}
+                                    className="flex-1 px-4 py-2 border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    disabled={savingCompany}
+                                    className="flex-1 px-4 py-2 bg-woork-teal text-white rounded-lg hover:bg-woork-teal/90 transition-colors disabled:opacity-50"
+                                >
+                                    {savingCompany ? "Saving..." : "Save Changes"}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
