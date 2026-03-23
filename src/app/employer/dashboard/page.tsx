@@ -97,7 +97,7 @@ const mockCandidates: Candidate[] = [
 ];
 
 export default function EmployerDashboard() {
-    const { user, loading: authLoading, userType } = useAuth();
+    const { user, loading: authLoading, userType, signOut } = useAuth();
     const router = useRouter();
     const [activeTab, setActiveTab] = useState<Tab>("jobs");
     const [searchQuery, setSearchQuery] = useState("");
@@ -152,9 +152,21 @@ export default function EmployerDashboard() {
                                 Post a Job
                             </Link>
                             <div className="flex items-center gap-2">
-                                <div className="w-8 h-8 rounded-full bg-woork-navy text-white flex items-center justify-center text-sm font-medium">
-                                    B
-                                </div>
+                                <Link href="/profile" className="flex items-center gap-2 hover:bg-gray-100 rounded-lg px-2 py-1 transition-colors">
+                                    <div className="w-8 h-8 rounded-full bg-woork-navy text-white flex items-center justify-center text-sm font-medium">
+                                        {user?.email?.charAt(0).toUpperCase() || "U"}
+                                    </div>
+                                    <span className="text-sm text-gray-700 hidden sm:inline">My Profile</span>
+                                </Link>
+                                <button
+                                    onClick={async () => {
+                                        await signOut();
+                                        router.push("/");
+                                    }}
+                                    className="text-sm text-gray-500 hover:text-red-600 transition-colors"
+                                >
+                                    Logout
+                                </button>
                             </div>
                         </div>
                     </div>

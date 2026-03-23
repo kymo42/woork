@@ -56,7 +56,12 @@ export default function DashboardPage() {
                             <span className="text-xl font-bold text-woork-navy">woork</span>
                         </div>
                         <div className="flex items-center gap-4">
-                            <span className="text-sm text-gray-600">{user.email}</span>
+                            <Link href="/profile" className="flex items-center gap-2 hover:bg-gray-100 rounded-lg px-2 py-1 transition-colors">
+                                <div className="w-8 h-8 rounded-full bg-woork-navy text-white flex items-center justify-center text-sm font-medium">
+                                    {user?.email?.charAt(0).toUpperCase() || "U"}
+                                </div>
+                                <span className="text-sm text-gray-700 hidden sm:inline">My Profile</span>
+                            </Link>
                             <button
                                 onClick={async () => {
                                     await signOut();

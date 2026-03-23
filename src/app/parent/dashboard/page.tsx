@@ -31,7 +31,7 @@ interface Application {
 }
 
 export default function ParentDashboard() {
-    const { user, loading: authLoading, userType } = useAuth();
+    const { user, loading: authLoading, userType, signOut } = useAuth();
     const router = useRouter();
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState<"overview" | "applications" | "teens" | "settings">("overview");
@@ -155,9 +155,21 @@ export default function ParentDashboard() {
                         </Link>
                         <div className="flex items-center gap-4">
                             <span className="text-slate-400">Welcome, {parentData?.firstName || "Parent"}</span>
-                            <div className="w-10 h-10 rounded-full bg-woork-coral text-white flex items-center justify-center font-medium">
-                                {parentData?.firstName?.[0] || "P"}
-                            </div>
+                            <Link href="/profile" className="flex items-center gap-2 hover:bg-slate-700 rounded-lg px-2 py-1 transition-colors">
+                                <div className="w-10 h-10 rounded-full bg-woork-coral text-white flex items-center justify-center font-medium">
+                                    {parentData?.firstName?.[0] || "P"}
+                                </div>
+                                <span className="text-sm text-slate-300 hidden sm:inline">My Profile</span>
+                            </Link>
+                            <button
+                                onClick={async () => {
+                                    await signOut();
+                                    router.push("/");
+                                }}
+                                className="text-sm text-slate-400 hover:text-red-400 transition-colors"
+                            >
+                                Logout
+                            </button>
                         </div>
                     </div>
                 </div>
