@@ -10,20 +10,28 @@ service cloud.firestore {
       return request.auth != null;
     }
     
+    function hasUserDoc() {
+      return exists(/databases/$(database)/documents/users/$(request.auth.uid));
+    }
+    
+    function getUserDoc() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+    
     function isTeen() {
-      return isSignedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.userType == 'teen';
+      return isSignedIn() && hasUserDoc() && getUserDoc().userType == 'teen';
     }
     
     function isParent() {
-      return isSignedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.userType == 'parent';
+      return isSignedIn() && hasUserDoc() && getUserDoc().userType == 'parent';
     }
     
     function isEmployer() {
-      return isSignedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.userType == 'employer';
+      return isSignedIn() && hasUserDoc() && getUserDoc().userType == 'employer';
     }
     
     function isAdmin() {
-      return isSignedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.userType == 'admin';
+      return isSignedIn() && hasUserDoc() && getUserDoc().userType == 'admin';
     }
     
     function isOwner(userId) {
@@ -31,7 +39,7 @@ service cloud.firestore {
     }
     
     function isParentOf(teenId) {
-      return isParent() && request.auth.uid in get(/databases/$(database)/documents/users/$(teenId)).data.parentIds;
+      return isParent() && exists(/databases/$(database)/documents/users/$(teenId)) && request.auth.uid in get(/databases/$(database)/documents/users/$(teenId)).data.parentIds;
     }
     
     // Users collection

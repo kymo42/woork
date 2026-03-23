@@ -51,10 +51,19 @@ export function Providers({ children }: { children: ReactNode }) {
                 if (userDoc.exists()) {
                     const data = userDoc.data();
                     setUserType(data.userType || "teen");
+                } else {
+                    // New user - default to teen, will be set during profile setup
+                    setUserType("teen");
                 }
-            } catch (error) {
-                console.error("Error fetching userType:", error);
-                setUserType("teen");
+            } catch (error: any) {
+                // Handle permission error for new users
+                if (error.code === "permission-denied" || error.message?.includes("permission-denied")) {
+                    console.log("New user - no profile yet, using default userType");
+                    setUserType("teen");
+                } else {
+                    console.error("Error fetching userType:", error);
+                    setUserType("teen");
+                }
             }
         };
 
