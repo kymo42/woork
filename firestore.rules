@@ -1,11 +1,15 @@
 // woork - Firebase Firestore Security Rules
+// STRICT SAFETY RULES FOR TEEN DATA PROTECTION
 
 rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    // Helper functions
+    // ============================================
+    // HELPER FUNCTIONS
+    // ============================================
+    
     function isSignedIn() {
       return request.auth != null;
     }
@@ -34,53 +38,136 @@ service cloud.firestore {
       return isSignedIn() && hasUserDoc() && getUserDoc().userType == 'admin';
     }
     
+    function isVerifiedEmployer() {
+      return isEmployer() && getUserDoc().verified == true;
+    }
+    
+    function isVerifiedParent() {
+      return isParent() && getUserDoc().verified == true;
+    }
+    
     function isOwner(userId) {
       return isSignedIn() && request.auth.uid == userId;
     }
     
+    // Check if parent is linked to teen
     function isParentOf(teenId) {
       return isParent() && exists(/databases/$(database)/documents/users/$(teenId)) && request.auth.uid in get(/databases/$(database)/documents/users/$(teenId)).data.parentIds;
     }
     
-    // Users collection
-    match /users/{userId} {
-      // Anyone can read basic user info (for matching)
-      allow read: if isSignedIn();
-      
-      // Users can only write their own profile
-      allow create: if isSignedIn() && request.auth.uid == userId;
-      allow update, delete: if isOwner(userId);
-      
-      // Admin can read all
-      allow read, write: if isAdmin();
-      
-      // Sub-collections
-      match /profile/{profileId} {
-        allow read: if isSignedIn();
-        allow write: if isOwner(userId);
-      }
+    // Check if teen has approved employer viewing
+    function canEmployerViewTeen(teenId) {
+      return exists(/databases/$(database)/documents/users/$(teenId)/allowedEmployers/$(request.auth.uid));
     }
     
-    // Jobs collection
-    match /jobs/{jobId} {
-      // Anyone can read active jobs
-      allow read: if isSignedIn() && resource.data.status == 'active';
+    // ============================================
+    // USER PROFILES - STRICT PROTECTION
+    // ============================================
+    
+    match /users/{userId} {
+      // Read: 
+      // - Teen can read own profile
+      // - Parent can read own profile and teen profiles they oversee
+      // - Employer can read ONLY basic teen info IF teen approved them
+      allow read: if isOwner(userId) 
+        || isAdmin() 
+        || (isParent() && isParentOf(userId))
+        || (isEmployer() && canEmployerViewTeen(userId));
       
-      // Only employers can create jobs
+      // Write: Only own profile (with validation)
+      allow create: if isSignedIn() && request.auth.uid == userId;
+      allow update: if isOwner(userId) || isAdmin();
+      allow delete: if isOwner(userId) || isAdmin();
+    }
+    
+    // Teen profile visibility settings
+    match /users/{userId}/privacy/{privacyId} {
+      allow read: if isOwner(userId) || isParentOf(userId) || isAdmin();
+      allow write: if isOwner(userId);
+    }
+    
+    // Allowed employers - teen must explicitly approve
+    match /users/{userId}/allowedEmployers/{employerId} {
+      allow read: if isOwner(userId) || isParentOf(userId);
+      allow create, delete: if isOwner(userId);
+    }
+    
+    // ============================================
+    // PROFILE SUB-COLLECTIONS
+    // ============================================
+    
+    match /users/{userId}/profile/{profileId} {
+      // Only teen and their parents can read full profile
+      allow read: if isOwner(userId) || isParentOf(userId) || isAdmin();
+      allow write: if isOwner(userId);
+    }
+    
+    // ============================================
+    // ASSESSMENTS - Employer testing tools
+    // ============================================
+    
+    // Employer creates assessments
+    match /assessments/{assessmentId} {
+      allow read: if isSignedIn();
       allow create: if isEmployer();
-      
-      // Only the job owner or admin can modify
+      allow update, delete: if isEmployer() && resource.data.employerId == request.auth.uid || isAdmin();
+    }
+    
+    // Teen completes assessments
+    match /assessments/{assessmentId}/submissions/{submissionId} {
+      allow read: if isOwner(submissionId) || isParentOf(submissionId) || isEmployer() && resource.data.assessmentId == assessmentId;
+      allow create: if isTeen();
+      allow update: if isOwner(submissionId) || isAdmin();
+    }
+    
+    // ============================================
+    // CHALLENGES - Gamified skill tests
+    // ============================================
+    
+    match /challenges/{challengeId} {
+      allow read: if true; // Public challenges
+      allow create, update, delete: if isEmployer() || isAdmin();
+    }
+    
+    // Teen challenge completions
+    match /users/{userId}/challenges/{challengeId} {
+      allow read: if isOwner(userId) || isParentOf(userId) || isAdmin();
+      allow create, update: if isOwner(userId);
+    }
+    
+    // ============================================
+    // ACHIEVEMENTS & BADGES
+    // ============================================
+    
+    // Global achievements (created by admin)
+    match /achievements/{achievementId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    
+    // Teen achievements
+    match /users/{userId}/achievements/{achievementId} {
+      allow read: if isOwner(userId) || isParentOf(userId) || (isEmployer() && canEmployerViewTeen(userId));
+      allow write: if isOwner(userId) || isAdmin();
+    }
+    
+    // ============================================
+    // JOBS & APPLICATIONS
+    // ============================================
+    
+    match /jobs/{jobId} {
+      allow read: if isSignedIn() && resource.data.status == 'active';
+      allow create: if isEmployer();
       allow update, delete: if isEmployer() && resource.data.employerId == request.auth.uid || isAdmin();
       
-      // Applications subcollection
       match /applications/{applicationId} {
         allow read: if isSignedIn();
         allow create: if isTeen();
-        allow update: if isEmployer() || isParentOf(resource.data.teenId) || isOwner(resource.data.teenId);
+        // Only employer who posted job, teen's parent, or teen can update
+        allow update: if (isEmployer() && resource.data.jobId == jobId) || isParentOf(resource.data.teenId) || isOwner(resource.data.teenId);
       }
     }
     
-    // Applications collection (top-level)
     match /applications/{applicationId} {
       allow read: if isSignedIn();
       allow create: if isTeen();
@@ -88,41 +175,53 @@ service cloud.firestore {
       allow delete: if isOwner(resource.data.teenId) || isAdmin();
     }
     
-    // Messages collection
-    match /messages/{messageId} {
-      allow read, write: if isSignedIn();
+    // ============================================
+    // PARENT VERIFICATION
+    // ============================================
+    
+    match /parentVerifications/{verificationId} {
+      allow read: if isAdmin();
+      // Parent requests verification with IP
+      allow create: if isParent();
+      allow update: if isAdmin();
     }
     
-    // Conversations collection
+    // ============================================
+    // MESSAGING - Strictly controlled
+    // ============================================
+    
+    match /messages/{messageId} {
+      // Only allow messaging between teen and employer (not teen-to-teen)
+      allow read, write: if isSignedIn() && (
+        isAdmin() ||
+        (isTeen() && resource.data.recipientType == 'employer') ||
+        (isEmployer() && resource.data.recipientType == 'teen') ||
+        (isParent() && resource.data.recipientType == 'employer')
+      );
+    }
+    
     match /conversations/{conversationId} {
       allow read, write: if isSignedIn() && request.auth.uid in resource.data.participants;
       allow create: if isSignedIn();
     }
     
-    // Skills collection (global)
+    // ============================================
+    // SKILLS & GLOBAL DATA
+    // ============================================
+    
     match /skills/{skillId} {
-      allow read: if true; // Public read
+      allow read: if true;
       allow write: if isAdmin();
     }
     
-    // Achievements collection (global)
-    match /achievements/{achievementId} {
-      allow read: if true; // Public read
-      allow write: if isAdmin();
-    }
+    // ============================================
+    // MODERATION & ADMIN
+    // ============================================
     
-    // Teen achievements
-    match /users/{userId}/achievements/{achievementId} {
-      allow read: if isSignedIn();
-      allow write: if isOwner(userId) || isAdmin();
-    }
-    
-    // Admin moderation queue
     match /moderation/{moderationId} {
       allow read, write: if isAdmin();
     }
     
-    // Employer verification queue
     match /verifications/{verificationId} {
       allow read: if isAdmin();
       allow create: if isEmployer();

@@ -151,6 +151,9 @@ export default function EmployerDashboard() {
                                 <Plus className="w-4 h-4" />
                                 Post a Job
                             </Link>
+                            <Link href="/employer/assessments" className="text-sm text-woork-teal hover:underline flex items-center gap-1">
+                                🎮 Create Challenge
+                            </Link>
                             <div className="flex items-center gap-2">
                                 <Link href="/profile" className="flex items-center gap-2 hover:bg-gray-100 rounded-lg px-2 py-1 transition-colors">
                                     <div className="w-8 h-8 rounded-full bg-woork-navy text-white flex items-center justify-center text-sm font-medium">
