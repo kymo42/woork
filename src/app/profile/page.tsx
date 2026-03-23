@@ -17,17 +17,21 @@ import {
     Phone,
     Mail,
     Shield,
+    ShieldCheck,
     Search,
     BookOpen,
     Save,
     Star,
     Building2,
     Lightbulb,
-    Trash2
+    Trash2,
+    CheckCircle,
+    Users,
+    Award
 } from "lucide-react";
 import { useAuth } from "@/components/providers";
 
-type Step = "basics" | "location" | "skills" | "experience" | "availability" | "research" | "review";
+type Step = "basics" | "location" | "skills" | "experience" | "availability" | "research" | "trust" | "review";
 
 interface ProfileData {
     // Basics
@@ -80,6 +84,13 @@ interface ProfileData {
         createdAt: string;
         updatedAt: string;
     }[];
+
+    // Trust/Verification (computed, not stored)
+    parentLinked: boolean;
+    jobVerified: boolean;
+    staffReferral: boolean;
+    teenVouches: number;
+    assessmentsCompleted: number;
 }
 
 const AUSTRALIAN_STATES = [
@@ -143,6 +154,12 @@ export default function ProfilePage() {
             sunday: [],
         },
         researchNotes: [],
+        // Trust/Verification (computed from other sources)
+        parentLinked: false,
+        jobVerified: false,
+        staffReferral: false,
+        teenVouches: 0,
+        assessmentsCompleted: 0,
     });
 
     const steps: { key: Step; label: string; icon: React.ReactNode }[] = [
@@ -152,6 +169,7 @@ export default function ProfilePage() {
         { key: "experience", label: "Experience", icon: <Briefcase className="w-5 h-5" /> },
         { key: "availability", label: "Availability", icon: <Calendar className="w-5 h-5" /> },
         { key: "research", label: "Research", icon: <BookOpen className="w-5 h-5" /> },
+        { key: "trust", label: "Trust", icon: <ShieldCheck className="w-5 h-5" /> },
         { key: "review", label: "Review", icon: <Check className="w-5 h-5" /> },
     ];
 
@@ -830,6 +848,171 @@ export default function ProfilePage() {
                                 <li>• Ask parents or friends about their work experiences</li>
                                 <li>• Watch videos about different jobs on YouTube</li>
                                 <li>• Take notes so you remember why you want to apply!</li>
+                            </ul>
+                        </div>
+                    </div>
+                );
+
+            case "trust":
+                return (
+                    <div className="space-y-6">
+                        <div className="text-center mb-8">
+                            <div className="w-24 h-24 rounded-full bg-woork-teal/20 mx-auto mb-4 flex items-center justify-center">
+                                <ShieldCheck className="w-12 h-12 text-woork-teal" />
+                            </div>
+                            <h2 className="text-xl font-bold text-woork-navy">Build Your Trust Score</h2>
+                            <p className="text-gray-600">Show employers you're the real deal!</p>
+                        </div>
+
+                        {/* Trust explained */}
+                        <div className="bg-gradient-to-r from-woork-teal/10 to-woork-navy/10 rounded-xl p-4">
+                            <h3 className="font-semibold text-woork-navy mb-3 flex items-center gap-2">
+                                <ShieldCheck className="w-5 h-5 text-woork-teal" />
+                                What is the Trust Score?
+                            </h3>
+                            <p className="text-sm text-gray-600 mb-3">
+                                Your Trust Score helps employers know you're a genuine candidate.
+                                It doesn't rate your skills - just that you're who you say you are!
+                            </p>
+                        </div>
+
+                        {/* Trust indicators */}
+                        <div className="space-y-4">
+                            {/* Parent Linked */}
+                            <div className="bg-white rounded-xl p-4 border border-gray-200">
+                                <div className="flex items-start gap-4">
+                                    <div className={`w-12 h-12 rounded-full flex items-center justify-center ${profile.parentLinked ? "bg-green-100" : "bg-gray-100"}`}>
+                                        <Users className={`w-6 h-6 ${profile.parentLinked ? "text-green-600" : "text-gray-400"}`} />
+                                    </div>
+                                    <div className="flex-1">
+                                        <h4 className="font-semibold text-woork-navy flex items-center gap-2">
+                                            Parent Linked
+                                            {profile.parentLinked && <CheckCircle className="w-5 h-5 text-green-500" />}
+                                        </h4>
+                                        <p className="text-sm text-gray-600 mt-1">
+                                            Ask your parent to create an account and link to yours.
+                                            This shows employers your family knows about your job search!
+                                        </p>
+                                        {!profile.parentLinked && (
+                                            <div className="mt-3 p-3 bg-woork-teal/10 rounded-lg">
+                                                <p className="text-xs text-woork-navy">
+                                                    💡 Ask your parent to sign up at woork.com.au and go to
+                                                    "Link Teen" in their dashboard to connect with you!
+                                                </p>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Job Verified */}
+                            <div className="bg-white rounded-xl p-4 border border-gray-200">
+                                <div className="flex items-start gap-4">
+                                    <div className={`w-12 h-12 rounded-full flex items-center justify-center ${profile.jobVerified ? "bg-green-100" : "bg-gray-100"}`}>
+                                        <Award className={`w-6 h-6 ${profile.jobVerified ? "text-green-600" : "text-gray-400"}`} />
+                                    </div>
+                                    <div className="flex-1">
+                                        <h4 className="font-semibold text-woork-navy flex items-center gap-2">
+                                            Job Verified
+                                            {profile.jobVerified && <CheckCircle className="w-5 h-5 text-green-500" />}
+                                        </h4>
+                                        <p className="text-sm text-gray-600 mt-1">
+                                            Once you've had a job and your employer confirms it,
+                                            this badge appears! Shows you've shown up and done the work.
+                                        </p>
+                                        <div className="mt-3 p-3 bg-amber-50 rounded-lg">
+                                            <p className="text-xs text-amber-800">
+                                                ⭐ Tip: After completing a job (even casual work),
+                                                ask the employer if they'll verify it on woork!
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Staff Referral */}
+                            <div className="bg-white rounded-xl p-4 border border-gray-200">
+                                <div className="flex items-start gap-4">
+                                    <div className={`w-12 h-12 rounded-full flex items-center justify-center ${profile.staffReferral ? "bg-green-100" : "bg-gray-100"}`}>
+                                        <Users className={`w-6 h-6 ${profile.staffReferral ? "text-green-600" : "text-gray-400"}`} />
+                                    </div>
+                                    <div className="flex-1">
+                                        <h4 className="font-semibold text-woork-navy flex items-center gap-2">
+                                            Staff Referral
+                                            {profile.staffReferral && <CheckCircle className="w-5 h-5 text-green-500" />}
+                                        </h4>
+                                        <p className="text-sm text-gray-600 mt-1">
+                                            Got a friend already working somewhere cool? They can vouch for you
+                                            if they're on woork! Mutual referrals help everyone.
+                                        </p>
+                                        <div className="mt-3">
+                                            <button className="text-sm text-woork-teal hover:underline">
+                                                → Go to Referrals to request one
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Assessments Completed */}
+                            <div className="bg-white rounded-xl p-4 border border-gray-200">
+                                <div className="flex items-start gap-4">
+                                    <div className={`w-12 h-12 rounded-full flex items-center justify-center ${profile.assessmentsCompleted > 0 ? "bg-green-100" : "bg-gray-100"}`}>
+                                        <CheckCircle className={`w-6 h-6 ${profile.assessmentsCompleted > 0 ? "text-green-600" : "text-gray-400"}`} />
+                                    </div>
+                                    <div className="flex-1">
+                                        <h4 className="font-semibold text-woork-navy flex items-center gap-2">
+                                            Assessments Completed
+                                            {profile.assessmentsCompleted > 0 && (
+                                                <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">
+                                                    {profile.assessmentsCompleted} done
+                                                </span>
+                                            )}
+                                        </h4>
+                                        <p className="text-sm text-gray-600 mt-1">
+                                            Some employers post skill challenges. Completing them shows initiative
+                                            and gives employers confidence you're serious!
+                                        </p>
+                                        <div className="mt-3">
+                                            <button className="text-sm text-woork-teal hover:underline">
+                                                → Browse employer assessments
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Current Trust Level Display */}
+                        <div className="bg-woork-navy rounded-xl p-4 text-white">
+                            <h4 className="font-semibold mb-2">Your Current Trust Level</h4>
+                            <div className="flex items-center gap-3">
+                                <ShieldCheck className="w-8 h-8 text-woork-coral" />
+                                <div>
+                                    <div className="text-lg font-bold">
+                                        {profile.parentLinked ? "Established" :
+                                            profile.jobVerified ? "Active" :
+                                                profile.staffReferral ? "Active" :
+                                                    "New Member"}
+                                    </div>
+                                    <div className="text-sm text-white/70">
+                                        {profile.parentLinked ? "Parent verification complete" :
+                                            profile.jobVerified ? "Verified work history" :
+                                                profile.staffReferral ? "Got a staff vouch!" :
+                                                    "Complete more steps to increase trust"}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Tips */}
+                        <div className="bg-woork-coral/10 rounded-xl p-4">
+                            <h4 className="font-medium text-woork-navy mb-2">💡 Why Trust Matters</h4>
+                            <ul className="text-sm text-gray-600 space-y-1">
+                                <li>• Employers get lots of messages - trust badges help you stand out</li>
+                                <li>• Shows you're serious about getting a job</li>
+                                <li>• Makes it worth employers' time to respond to you</li>
+                                <li>• Doesn't rate your skills or predict job success!</li>
                             </ul>
                         </div>
                     </div>
