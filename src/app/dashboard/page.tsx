@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/providers";
+import { Sparkles, Users } from "lucide-react";
 
 export default function DashboardPage() {
     const { user, loading, signOut, userType } = useAuth();
@@ -56,6 +57,14 @@ export default function DashboardPage() {
                             <span className="text-xl font-bold text-woork-navy">woork</span>
                         </div>
                         <div className="flex items-center gap-4">
+                            <Link href="/dashboard/skills-market" className="text-sm text-woork-teal hover:underline flex items-center gap-1">
+                                <Sparkles className="w-4 h-4" />
+                                <span className="hidden md:inline">Skills Market</span>
+                            </Link>
+                            <Link href="/dashboard/referrals" className="text-sm text-woork-teal hover:underline flex items-center gap-1">
+                                <Users className="w-4 h-4" />
+                                <span className="hidden md:inline">Referrals</span>
+                            </Link>
                             <Link href="/profile" className="flex items-center gap-2 hover:bg-gray-100 rounded-lg px-2 py-1 transition-colors">
                                 <div className="w-8 h-8 rounded-full bg-woork-navy text-white flex items-center justify-center text-sm font-medium">
                                     {user?.email?.charAt(0).toUpperCase() || "U"}
@@ -139,27 +148,38 @@ export default function DashboardPage() {
                 {/* Getting Started */}
                 <div className="mt-8 bg-gradient-to-r from-woork-teal/10 to-woork-coral/10 rounded-xl p-6">
                     <h2 className="text-xl font-bold text-woork-navy mb-4">Getting Started</h2>
-                    <div className="grid md:grid-cols-4 gap-4">
+                    <div className="grid md:grid-cols-5 gap-4">
                         <div className="bg-white rounded-lg p-4">
                             <div className="w-10 h-10 rounded-full bg-woork-teal/20 text-woork-teal flex items-center justify-center font-bold mb-2">1</div>
                             <h4 className="font-medium text-woork-navy">Complete Profile</h4>
-                            <p className="text-sm text-gray-500 mt-1">Add your skills and experience</p>
+                            <p className="text-sm text-gray-500 mt-1">Add your skills</p>
                         </div>
                         <div className="bg-white rounded-lg p-4">
                             <div className="w-10 h-10 rounded-full bg-woork-teal/20 text-woork-teal flex items-center justify-center font-bold mb-2">2</div>
-                            <h4 className="font-medium text-woork-navy">Find Jobs</h4>
-                            <p className="text-sm text-gray-500 mt-1">Browse jobs that match you</p>
+                            <h4 className="font-medium text-woork-navy">Skills Market</h4>
+                            <p className="text-sm text-gray-500 mt-1">Advertise yourself</p>
                         </div>
                         <div className="bg-white rounded-lg p-4">
                             <div className="w-10 h-10 rounded-full bg-woork-teal/20 text-woork-teal flex items-center justify-center font-bold mb-2">3</div>
-                            <h4 className="font-medium text-woork-navy">Apply</h4>
-                            <p className="text-sm text-gray-500 mt-1">Send applications to employers</p>
+                            <h4 className="font-medium text-woork-navy">Find Jobs</h4>
+                            <p className="text-sm text-gray-500 mt-1">Browse matches</p>
                         </div>
                         <div className="bg-white rounded-lg p-4">
                             <div className="w-10 h-10 rounded-full bg-woork-teal/20 text-woork-teal flex items-center justify-center font-bold mb-2">4</div>
-                            <h4 className="font-medium text-woork-navy">Get Hired</h4>
-                            <p className="text-sm text-gray-500 mt-1">Land your first job!</p>
+                            <h4 className="font-medium text-woork-navy">Apply</h4>
+                            <p className="text-sm text-gray-500 mt-1">Send apps</p>
                         </div>
+                        <div className="bg-white rounded-lg p-4">
+                            <div className="w-10 h-10 rounded-full bg-woork-teal/20 text-woork-teal flex items-center justify-center font-bold mb-2">5</div>
+                            <h4 className="font-medium text-woork-navy">Get Hired</h4>
+                            <p className="text-sm text-gray-500 mt-1">Land your job!</p>
+                        </div>
+                    </div>
+                    <div className="mt-4 flex gap-3">
+                        <Link href="/dashboard/skills-market" className="btn-primary text-sm flex items-center gap-2">
+                            <Sparkles className="w-4 h-4" />
+                            Go to Skills Market
+                        </Link>
                     </div>
                 </div>
             </main>

@@ -320,62 +320,86 @@ export default function ProfilePage() {
                 );
 
             case "location":
+                // Australian metro/regional areas for privacy
+                const metroAreas = [
+                    { value: "sydney-metro", label: "Sydney Metro", state: "NSW" },
+                    { value: "melbourne-metro", label: "Melbourne Metro", state: "VIC" },
+                    { value: "brisbane-metro", label: "Brisbane Metro", state: "QLD" },
+                    { value: "perth-metro", label: "Perth Metro", state: "WA" },
+                    { value: "adelaide-metro", label: "Adelaide Metro", state: "SA" },
+                    { value: "gold-coast", label: "Gold Coast", state: "QLD" },
+                    { value: "newcastle", label: "Newcastle", state: "NSW" },
+                    { value: "canberra-metro", label: "Canberra Metro", state: "ACT" },
+                    { value: "sunshine-coast", label: "Sunshine Coast", state: "QLD" },
+                    { value: "geelong", label: "Geelong", state: "VIC" },
+                    { value: "central-coast", label: "Central Coast", state: "NSW" },
+                    { value: "hobart", label: "Hobart", state: "TAS" },
+                    { value: "darwin", label: "Darwin", state: "NT" },
+                    { value: "toowoomba", label: "Toowoomba", state: "QLD" },
+                    { value: "ballarat", label: "Ballarat", state: "VIC" },
+                    { value: "bendigo", label: "Bendigo", state: "VIC" },
+                    { value: "nsw-regional", label: "NSW Regional", state: "NSW" },
+                    { value: "vic-regional", label: "Victoria Regional", state: "VIC" },
+                    { value: "qld-regional", label: "Queensland Regional", state: "QLD" },
+                    { value: "wa-regional", label: "Western Australia Regional", state: "WA" },
+                    { value: "sa-regional", label: "South Australia Regional", state: "SA" },
+                    { value: "tas-regional", label: "Tasmania Regional", state: "TAS" },
+                    { value: "nt-regional", label: "Northern Territory Regional", state: "NT" },
+                    { value: "act-other", label: "ACT (other areas)", state: "ACT" },
+                ];
+
                 return (
                     <div className="space-y-6">
                         <div className="text-center mb-8">
                             <div className="w-24 h-24 rounded-full bg-woork-teal/20 mx-auto mb-4 flex items-center justify-center">
                                 <MapPin className="w-12 h-12 text-woork-teal" />
                             </div>
-                            <h2 className="text-xl font-bold text-woork-navy">Where do you live?</h2>
-                            <p className="text-gray-600">Help employers find you</p>
+                            <h2 className="text-xl font-bold text-woork-navy">Where can you work?</h2>
+                            <p className="text-gray-600">Select your area - no exact address needed!</p>
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Suburb</label>
-                            <input
-                                type="text"
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Select your area</label>
+                            <select
                                 value={profile.suburb}
-                                onChange={(e) => setProfile({ ...profile, suburb: e.target.value })}
+                                onChange={(e) => setProfile({ ...profile, suburb: e.target.value, state: metroAreas.find(a => a.value === e.target.value)?.state || "" })}
                                 className="input-field"
-                                placeholder="Sydney"
-                            />
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-4">
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">State</label>
-                                <select
-                                    value={profile.state}
-                                    onChange={(e) => setProfile({ ...profile, state: e.target.value })}
-                                    className="input-field"
-                                >
-                                    <option value="">Select state</option>
-                                    {AUSTRALIAN_STATES.map(state => (
-                                        <option key={state.code} value={state.code}>{state.name}</option>
+                            >
+                                <option value="">Choose your area...</option>
+                                <optgroup label="Major Cities - Metro Areas">
+                                    {metroAreas.filter(a => a.label.includes("Metro") || ["Gold Coast", "Newcastle", "Canberra Metro", "Sunshine Coast", "Geelong", "Central Coast", "Hobart", "Darwin", "Toowoomba", "Ballarat", "Bendigo"].includes(a.label)).map(area => (
+                                        <option key={area.value} value={area.value}>{area.label}</option>
                                     ))}
-                                </select>
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">Postcode</label>
-                                <input
-                                    type="text"
-                                    value={profile.postcode}
-                                    onChange={(e) => setProfile({ ...profile, postcode: e.target.value })}
-                                    className="input-field"
-                                    placeholder="2000"
-                                    maxLength={4}
-                                />
-                            </div>
+                                </optgroup>
+                                <optgroup label="Regional Areas">
+                                    {metroAreas.filter(a => a.label.includes("Regional")).map(area => (
+                                        <option key={area.value} value={area.value}>{area.label}</option>
+                                    ))}
+                                </optgroup>
+                            </select>
                         </div>
 
                         <div className="bg-woork-teal/10 rounded-xl p-4">
                             <div className="flex items-start gap-3">
                                 <Shield className="w-5 h-5 text-woork-teal mt-0.5" />
                                 <div>
-                                    <h4 className="font-medium text-woork-navy">Your location is private</h4>
-                                    <p className="text-sm text-gray-600">Employers only see your suburb and state, not your exact address</p>
+                                    <h4 className="font-medium text-woork-navy">Your location is private 🔒</h4>
+                                    <p className="text-sm text-gray-600">
+                                        We use broad metro/regional areas so employers can find you without knowing where you live.
+                                        Your exact address is never shared!
+                                    </p>
                                 </div>
                             </div>
+                        </div>
+
+                        <div className="bg-woork-navy/5 rounded-xl p-4">
+                            <h4 className="font-medium text-woork-navy mb-2">💡 Why metro areas?</h4>
+                            <ul className="text-sm text-gray-600 space-y-1">
+                                <li>• Employers can search by your area</li>
+                                <li>• You stay safe - no one knows your exact address</li>
+                                <li>• "Metro" = major city centre, "Regional" = outside the city</li>
+                                <li>• Choose the area closest to where you can travel</li>
+                            </ul>
                         </div>
                     </div>
                 );
@@ -691,9 +715,9 @@ export default function ProfilePage() {
                                                 <div>
                                                     <div className="flex items-center gap-2">
                                                         <span className={`text-xs px-2 py-0.5 rounded-full ${note.type === "employer" ? "bg-blue-100 text-blue-700" :
-                                                                note.type === "job" ? "bg-green-100 text-green-700" :
-                                                                    note.type === "industry" ? "bg-purple-100 text-purple-700" :
-                                                                        "bg-gray-100 text-gray-700"
+                                                            note.type === "job" ? "bg-green-100 text-green-700" :
+                                                                note.type === "industry" ? "bg-purple-100 text-purple-700" :
+                                                                    "bg-gray-100 text-gray-700"
                                                             }`}>
                                                             {note.type}
                                                         </span>
