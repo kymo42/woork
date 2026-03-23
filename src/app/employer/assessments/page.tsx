@@ -191,8 +191,8 @@ export default function AssessmentsPage() {
                             <span className="text-xl font-bold text-woork-navy">woork</span>
                         </Link>
                         <div className="flex items-center gap-4">
-                            <Link href="/profile" className="text-sm text-gray-700 hover:text-woork-navy">
-                                My Profile
+                            <Link href="/employer/dashboard" className="text-sm text-gray-700 hover:text-woork-navy">
+                                Dashboard
                             </Link>
                             <button
                                 onClick={async () => {

@@ -155,11 +155,11 @@ export default function ParentDashboard() {
                         </Link>
                         <div className="flex items-center gap-4">
                             <span className="text-slate-400">Welcome, {parentData?.firstName || "Parent"}</span>
-                            <Link href="/profile" className="flex items-center gap-2 hover:bg-slate-700 rounded-lg px-2 py-1 transition-colors">
+                            <Link href="/parent/dashboard" className="flex items-center gap-2 hover:bg-slate-700 rounded-lg px-2 py-1 transition-colors">
                                 <div className="w-10 h-10 rounded-full bg-woork-coral text-white flex items-center justify-center font-medium">
                                     {parentData?.firstName?.[0] || "P"}
                                 </div>
-                                <span className="text-sm text-slate-300 hidden sm:inline">My Profile</span>
+                                <span className="text-sm text-slate-300 hidden sm:inline">Dashboard</span>
                             </Link>
                             <button
                                 onClick={async () => {
