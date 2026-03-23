@@ -97,7 +97,7 @@ const mockCandidates: Candidate[] = [
 ];
 
 export default function EmployerDashboard() {
-    const { user, loading: authLoading } = useAuth();
+    const { user, loading: authLoading, userType } = useAuth();
     const router = useRouter();
     const [activeTab, setActiveTab] = useState<Tab>("jobs");
     const [searchQuery, setSearchQuery] = useState("");
@@ -107,6 +107,13 @@ export default function EmployerDashboard() {
             router.push("/login");
         }
     }, [user, authLoading, router]);
+
+    // Redirect non-employers
+    useEffect(() => {
+        if (!authLoading && user && userType && userType !== "employer") {
+            router.push("/dashboard");
+        }
+    }, [user, authLoading, userType, router]);
 
     const tabs = [
         { key: "jobs", label: "My Jobs", icon: <Briefcase className="w-4 h-4" /> },

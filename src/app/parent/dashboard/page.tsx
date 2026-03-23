@@ -40,8 +40,10 @@ export default function ParentDashboard() {
     const [parentData, setParentData] = useState<any>(null);
 
     useEffect(() => {
-        if (!authLoading && (!user || userType !== "parent")) {
+        if (!authLoading && !user) {
             router.push("/login");
+        } else if (user && userType && userType !== "parent") {
+            router.push("/dashboard");
         } else if (user && userType === "parent") {
             fetchData();
         }

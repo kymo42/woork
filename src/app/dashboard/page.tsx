@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/providers";
 
 export default function DashboardPage() {
-    const { user, loading, signOut } = useAuth();
+    const { user, loading, signOut, userType } = useAuth();
     const router = useRouter();
 
     useEffect(() => {
@@ -14,6 +14,19 @@ export default function DashboardPage() {
             router.push("/login");
         }
     }, [user, loading, router]);
+
+    // Redirect to appropriate dashboard based on user type
+    useEffect(() => {
+        if (!loading && user && userType) {
+            if (userType === "employer") {
+                router.push("/employer/dashboard");
+            } else if (userType === "parent") {
+                router.push("/parent/dashboard");
+            } else if (userType === "teen") {
+                // Stay on this dashboard for teens
+            }
+        }
+    }, [user, loading, userType, router]);
 
     if (loading) {
         return (
