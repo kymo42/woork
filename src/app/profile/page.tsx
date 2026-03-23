@@ -143,6 +143,17 @@ export default function ProfilePage() {
         }
     }, [user, authLoading, router]);
 
+    // Redirect non-teens to their appropriate dashboards
+    useEffect(() => {
+        if (!authLoading && user && userType && userType !== "teen") {
+            if (userType === "employer") {
+                router.push("/employer/dashboard");
+            } else if (userType === "parent") {
+                router.push("/parent/dashboard");
+            }
+        }
+    }, [user, authLoading, userType, router]);
+
     const handleNext = () => {
         const nextIndex = stepIndex + 1;
         if (nextIndex < steps.length) {
