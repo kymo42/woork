@@ -189,6 +189,10 @@ export default function EmployerDashboard() {
                             <span className="text-xl font-bold text-woork-navy">woork</span>
                         </Link>
                         <div className="flex items-center gap-4">
+                            <Link href="/jobs" className="btn-secondary text-sm flex items-center gap-2">
+                                <Search className="w-4 h-4" />
+                                Browse Jobs
+                            </Link>
                             <Link href="/employer/post-job" className="btn-primary text-sm flex items-center gap-2">
                                 <Plus className="w-4 h-4" />
                                 Post a Job
@@ -238,6 +242,20 @@ export default function EmployerDashboard() {
                                 <p className="text-sm text-gray-500">Active Jobs</p>
                             </div>
                         </div>
+                    </div>
+
+                    <div className="bg-white rounded-xl p-4 shadow-sm col-span-2">
+                        <Link href="/skills-market" className="block hover:bg-gray-50 -m-2 p-2 rounded-lg transition-colors">
+                            <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-lg bg-woork-coral/10 text-woork-coral flex items-center justify-center">
+                                    <TrendingUp className="w-5 h-5" />
+                                </div>
+                                <div>
+                                    <p className="text-lg font-bold text-woork-navy">Skills Market</p>
+                                    <p className="text-sm text-woork-teal">Teens advertising their skills →</p>
+                                </div>
+                            </div>
+                        </Link>
                     </div>
 
                     <div className="bg-white rounded-xl p-4 shadow-sm">

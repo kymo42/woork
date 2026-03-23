@@ -206,6 +206,58 @@ export default function ProfilePage() {
         }
     };
 
+    const handleSaveProfile = async () => {
+        if (!user || !userType) return;
+
+        setSaving(true);
+        try {
+            const { doc, setDoc, updateDoc, serverTimestamp, getFirestore } = await import("firebase/firestore");
+            const db = getFirestore();
+
+            const profileData = {
+                ...profile,
+                updatedAt: serverTimestamp(),
+                userType: userType,
+                trustLevel: profile.parentLinked ? "ESTABLISHED" :
+                    profile.jobVerified || profile.staffReferral ? "ACTIVE" : "NEW",
+            };
+
+            // Remove computed trust fields before saving (they'll be recalculated)
+            const { parentLinked, jobVerified, staffReferral, teenVouches, assessmentsCompleted, ...saveData } = profileData;
+
+            await setDoc(doc(db, "profiles", user.uid), {
+                ...saveData,
+                trustInfo: {
+                    parentLinked: profile.parentLinked,
+                    jobVerified: profile.jobVerified,
+                    staffReferral: profile.staffReferral,
+                    teenVouches: profile.teenVouches,
+                    assessmentsCompleted: profile.assessmentsCompleted,
+                },
+            }, { merge: true });
+
+            // Update user profile completion status
+            await updateDoc(doc(db, "users", user.uid), {
+                profileComplete: true,
+                profileCompletedAt: serverTimestamp(),
+            });
+
+            // Redirect based on user type
+            if (userType === "teen") {
+                router.push("/dashboard");
+            } else if (userType === "employer") {
+                router.push("/employer/dashboard");
+            } else if (userType === "parent") {
+                router.push("/parent/dashboard");
+            }
+        } catch (error) {
+            console.error("Error saving profile:", error);
+            alert("Failed to save profile. Please try again.");
+        } finally {
+            setSaving(false);
+        }
+    };
+
     const addSkill = (skillName: string) => {
         if (!profile.skills.find(s => s.name === skillName)) {
             setProfile({
@@ -1146,9 +1198,22 @@ export default function ProfilePage() {
                             <ChevronRight className="w-5 h-5" />
                         </button>
                     ) : (
-                        <button className="btn-primary flex-1 flex items-center justify-center gap-2">
-                            <Check className="w-5 h-5" />
-                            Save Profile
+                        <button
+                            onClick={handleSaveProfile}
+                            disabled={saving}
+                            className="btn-primary flex-1 flex items-center justify-center gap-2"
+                        >
+                            {saving ? (
+                                <>
+                                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                                    Saving...
+                                </>
+                            ) : (
+                                <>
+                                    <Check className="w-5 h-5" />
+                                    Save Profile
+                                </>
+                            )}
                         </button>
                     )}
                 </div>
