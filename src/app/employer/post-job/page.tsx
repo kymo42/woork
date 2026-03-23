@@ -178,7 +178,7 @@ export default function PostJobPage() {
             setSuccess(true);
 
             setTimeout(() => {
-                router.push("/employer");
+                router.push("/employer/dashboard");
             }, 2000);
 
         } catch (err: any) {
