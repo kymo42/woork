@@ -98,7 +98,7 @@ const COMMON_SKILLS = [
 ];
 
 export default function ProfilePage() {
-    const { user, loading: authLoading } = useAuth();
+    const { user, loading: authLoading, userType } = useAuth();
     const router = useRouter();
     const [currentStep, setCurrentStep] = useState<Step>("basics");
     const [saving, setSaving] = useState(false);
@@ -142,6 +142,17 @@ export default function ProfilePage() {
             router.push("/login");
         }
     }, [user, authLoading, router]);
+
+    // Redirect non-teens to their appropriate pages
+    useEffect(() => {
+        if (!authLoading && user && userType) {
+            if (userType === "employer") {
+                router.push("/employer/dashboard");
+            } else if (userType === "parent") {
+                router.push("/parent/dashboard");
+            }
+        }
+    }, [user, authLoading, userType, router]);
 
     const handleNext = () => {
         const nextIndex = stepIndex + 1;
