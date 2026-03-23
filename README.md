@@ -58,9 +58,16 @@ cp .env.local.example .env.local
 
 4. Configure Firebase:
    - Create a Firebase project at https://console.firebase.google.com
-   - Enable Authentication (Email/Password, Google, GitHub)
+   - Enable Authentication (Email/Password, Google, GitHub):
+     - Go to Authentication → Sign-in method
+     - Enable "Email/Password" (toggle to ON, enable Email/Password, not just Email link)
+     - Enable "Google" (toggle to ON, add your email as a provider)
+     - Enable "GitHub" (optional, requires GitHub OAuth app)
    - Enable Firestore Database
    - Enable Storage
+   - Add your domain to Authorized Domains:
+     - Go to Authentication → Settings → Authorized domains
+     - Add your production domain (e.g., your-app.vercel.app) and localhost
    - Copy your config to `.env.local`
 
 5. Run the development server:

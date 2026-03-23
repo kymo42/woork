@@ -12,7 +12,8 @@ import {
     User,
     Building2,
     ArrowRight,
-    CheckCircle2
+    CheckCircle2,
+    Chrome
 } from "lucide-react";
 import { Turnstile } from "@/components/turnstile-provider";
 import { useAuth } from "@/components/providers";
@@ -21,7 +22,7 @@ type UserType = "teen" | "parent" | "employer";
 
 export default function SignupPage() {
     const router = useRouter();
-    const { signUp } = useAuth();
+    const { signUp, signInWithGoogle } = useAuth();
     const [userType, setUserType] = useState<UserType>("teen");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -74,7 +75,39 @@ export default function SignupPage() {
             // Redirect to profile setup
             router.push(`/signup/profile?type=${userType}`);
         } catch (err: any) {
-            setError(err.message || "Failed to create account");
+            // Provide helpful error messages
+            if (err.code === "auth/operation-not-allowed") {
+                setError("Email/Password sign-up is not enabled. Please contact the administrator or use Google sign-up.");
+            } else if (err.code === "auth/email-already-in-use") {
+                setError("An account with this email already exists. Please log in instead.");
+            } else if (err.code === "auth/weak-password") {
+                setError("Password is too weak. Please use a stronger password (at least 6 characters).");
+            } else {
+                setError(err.message || "Failed to create account");
+            }
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleGoogleSignup = async () => {
+        setError("");
+        setLoading(true);
+
+        try {
+            await signInWithGoogle();
+            router.push(`/signup/profile?type=${userType}`);
+        } catch (err: any) {
+            // Provide helpful error messages for Google sign-up
+            if (err.code === "auth/popup-closed-by-user") {
+                setError("Sign-up was cancelled. Please try again.");
+            } else if (err.code === "auth/unauthorized-domain") {
+                setError("This domain is not authorized for Google sign-in. Please contact the administrator.");
+            } else if (err.code === "auth/operation-not-allowed") {
+                setError("Google sign-up is not enabled. Please use email sign-up instead.");
+            } else {
+                setError(err.message || "Failed to sign up with Google");
+            }
         } finally {
             setLoading(false);
         }
@@ -146,6 +179,29 @@ export default function SignupPage() {
 
                 {/* Signup Form */}
                 <div className="bg-white rounded-2xl shadow-lg p-8">
+                    {/* Social Signup */}
+                    <div className="space-y-3 mb-6">
+                        <button
+                            type="button"
+                            onClick={handleGoogleSignup}
+                            disabled={loading}
+                            className="w-full flex items-center justify-center gap-3 px-4 py-3 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors disabled:opacity-50"
+                        >
+                            <Chrome className="w-5 h-5" />
+                            <span className="font-medium text-gray-700">Sign up with Google</span>
+                        </button>
+                    </div>
+
+                    {/* Divider */}
+                    <div className="relative mb-6">
+                        <div className="absolute inset-0 flex items-center">
+                            <div className="w-full border-t border-gray-200" />
+                        </div>
+                        <div className="relative flex justify-center text-sm">
+                            <span className="px-4 bg-white text-gray-500">or sign up with email</span>
+                        </div>
+                    </div>
+
                     <form onSubmit={handleSubmit} className="space-y-6">
                         {/* Name Fields */}
                         <div className="grid grid-cols-2 gap-4">
