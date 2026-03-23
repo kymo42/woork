@@ -245,7 +245,7 @@ export default function EmployerDashboard() {
                     </div>
 
                     <div className="bg-white rounded-xl p-4 shadow-sm col-span-2">
-                        <Link href="/skills-market" className="block hover:bg-gray-50 -m-2 p-2 rounded-lg transition-colors">
+                        <Link href="/dashboard/skills-market" className="block hover:bg-gray-50 -m-2 p-2 rounded-lg transition-colors">
                             <div className="flex items-center gap-3">
                                 <div className="w-10 h-10 rounded-lg bg-woork-coral/10 text-woork-coral flex items-center justify-center">
                                     <TrendingUp className="w-5 h-5" />

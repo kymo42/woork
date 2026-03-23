@@ -998,9 +998,9 @@ export default function ProfilePage() {
                                             if they're on woork! Mutual referrals help everyone.
                                         </p>
                                         <div className="mt-3">
-                                            <button className="text-sm text-woork-teal hover:underline">
+                                            <Link href="/dashboard/referrals" className="text-sm text-woork-teal hover:underline">
                                                 → Go to Referrals to request one
-                                            </button>
+                                            </Link>
                                         </div>
                                     </div>
                                 </div>
@@ -1026,9 +1026,9 @@ export default function ProfilePage() {
                                             and gives employers confidence you're serious!
                                         </p>
                                         <div className="mt-3">
-                                            <button className="text-sm text-woork-teal hover:underline">
+                                            <Link href="/employer/assessments" className="text-sm text-woork-teal hover:underline">
                                                 → Browse employer assessments
-                                            </button>
+                                            </Link>
                                         </div>
                                     </div>
                                 </div>
