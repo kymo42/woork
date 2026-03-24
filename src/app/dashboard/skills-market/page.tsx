@@ -38,6 +38,88 @@ interface SkillAd {
     applications: number;
 }
 
+// Demo data for when database is empty
+const DEMO_SKILL_ADS: SkillAd[] = [
+    {
+        id: "demo1",
+        teenId: "demo",
+        teenName: "Alex T.",
+        teenArea: "Sydney Metro",
+        skills: ["Customer Service", "Cashier", "Retail"],
+        bio: "Friendly and eager to learn! I have experience helping at my family's cafe and I'm looking for my first retail job.",
+        type: "available",
+        experience: "Family cafe work, school retail program",
+        availability: "Weekends and after school",
+        createdAt: new Date().toISOString(),
+        applications: 24
+    },
+    {
+        id: "demo2",
+        teenId: "demo",
+        teenName: "Mia K.",
+        teenArea: "Melbourne Metro",
+        skills: ["Barista", "Hospitality", "Food Handling"],
+        bio: "I make great coffee! Did a barista course and helped at my uncle's cafe over summer. Ready for more!",
+        type: "available",
+        experience: "Barista certificate, cafe assistant",
+        availability: "School holidays, flexible",
+        createdAt: new Date().toISOString(),
+        applications: 18
+    },
+    {
+        id: "demo3",
+        teenId: "demo",
+        teenName: "Jordan L.",
+        teenArea: "Brisbane Metro",
+        skills: ["Sports Coaching", "First Aid", "Teamwork"],
+        bio: "Playing soccer for 8 years, got my First Aid cert. Love working with kids and teaching sports!",
+        type: "looking",
+        experience: "Junior soccer coach assistant, babysitting",
+        availability: "Saturday mornings, school holidays",
+        createdAt: new Date().toISOString(),
+        applications: 12
+    },
+    {
+        id: "demo4",
+        teenId: "demo",
+        teenName: "Sam R.",
+        teenArea: "Perth Metro",
+        skills: ["Computer Skills", "Social Media", "Administration"],
+        bio: "Tech-savvy teen who can help with social media, data entry and basic admin tasks. Fast learner!",
+        type: "available",
+        experience: "School IT helpdesk, social media for school club",
+        availability: "After school and weekends",
+        createdAt: new Date().toISOString(),
+        applications: 31
+    },
+    {
+        id: "demo5",
+        teenId: "demo",
+        teenName: "Chloe W.",
+        teenArea: "Adelaide Metro",
+        skills: ["Pet Sitting", "Gardening", "Reliable"],
+        bio: "Responsible teen who loves animals! I have two dogs of my own and regularly help neighbors with their pets.",
+        type: "available",
+        experience: "Dog walking, pet sitting, garden maintenance",
+        availability: "Flexible - school holidays especially",
+        createdAt: new Date().toISOString(),
+        applications: 15
+    },
+    {
+        id: "demo6",
+        teenId: "demo",
+        teenName: "Ethan M.",
+        teenArea: "Gold Coast",
+        skills: ["Driving", "Delivery", "Reliable"],
+        bio: "Got my L-plates, very careful driver. Looking for delivery or driving assistant work. Own car for work!",
+        type: "looking",
+        experience: "Delivery assistant for local bakery",
+        availability: "Weekends, school holidays",
+        createdAt: new Date().toISOString(),
+        applications: 22
+    }
+];
+
 export default function SkillsMarketPage() {
     const { user, loading: authLoading, userType } = useAuth();
     const router = useRouter();
@@ -78,13 +160,11 @@ export default function SkillsMarketPage() {
     useEffect(() => {
         if (!authLoading && !user) {
             router.push("/login");
-        } else if (!authLoading && user && userType && userType !== "teen") {
-            router.push("/dashboard");
         }
     }, [user, authLoading, userType, router]);
 
     useEffect(() => {
-        if (user && userType === "teen") {
+        if (user && (userType === "teen" || userType === "employer")) {
             fetchSkillAds();
         }
     }, [user, userType]);
@@ -118,11 +198,11 @@ export default function SkillsMarketPage() {
                 .filter(ad => ad.teenId !== user.uid)
                 .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
-            setSkillAds(otherAds);
+            setSkillAds(otherAds.length > 0 ? otherAds : DEMO_SKILL_ADS);
         } catch (error) {
             console.error("Error fetching skill ads:", error);
-            // Use mock data for demo
-            setSkillAds([]);
+            // Use demo data when database is empty or error
+            setSkillAds(DEMO_SKILL_ADS);
         } finally {
             setLoading(false);
         }
