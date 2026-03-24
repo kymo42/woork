@@ -12,6 +12,7 @@ import {
     Building2,
     GraduationCap
 } from "lucide-react";
+import { DarkModeButton } from "@/components/DarkModeButton";
 
 export default function Home() {
     return (
@@ -34,6 +35,7 @@ export default function Home() {
                         </div>
 
                         <div className="flex items-center gap-3">
+                            <DarkModeButton />
                             <Link
                                 href="/login"
                                 className="text-gray-600 hover:text-woork-navy font-medium transition-colors"

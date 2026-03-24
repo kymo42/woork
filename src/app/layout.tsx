@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/providers";
+import { DarkModeProvider } from "@/components/DarkModeToggle";
 
 const poppins = Poppins({
     subsets: ["latin"],
@@ -27,9 +28,11 @@ export default function RootLayout({
     return (
         <html lang="en" suppressHydrationWarning>
             <body className={`${poppins.variable} font-sans antialiased`}>
-                <Providers>
-                    {children}
-                </Providers>
+                <DarkModeProvider>
+                    <Providers>
+                        {children}
+                    </Providers>
+                </DarkModeProvider>
             </body>
         </html>
     );
