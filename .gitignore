@@ -71,3 +71,5 @@ temp/
 
 # Local build scratch
 .tmp/
+.next-static/
+.open-next/

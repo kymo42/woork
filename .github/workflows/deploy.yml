@@ -1,11 +1,10 @@
 name: Deploy woork to Cloudflare Workers
 
-# OpenNext does not support Windows: building there produces a bundle whose
-# routing manifests use Windows path separators, so every HTML route resolves to
-# the 404 page inside a 500 shell (static assets still serve, which makes it look
-# like a partial success). Building on Linux avoids that entirely.
+# woork is deployed as a static export: every route is a client component and all
+# state lives in localStorage, so there is no server runtime to deploy.
 #
-# This workflow is therefore the only supported way to deploy woork.
+# This workflow builds on Linux for consistency with how the output is served,
+# and deploys the exported HTML/assets as a Workers static-assets site.
 
 on:
   workflow_dispatch:
@@ -17,7 +16,6 @@ on:
       - "package.json"
       - "package-lock.json"
       - "next.config.ts"
-      - "open-next.config.ts"
       - "wrangler.jsonc"
       - "tailwind.config.ts"
       - "postcss.config.mjs"
@@ -48,7 +46,7 @@ jobs:
       - name: Verify the game's rules still hold
         run: npm run check:game
 
-      - name: Build for Cloudflare Workers
+      - name: Build static export
         run: npm run build:cf
 
       - name: Deploy
@@ -56,7 +54,7 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: deploy --autoconfig=false
+          command: deploy --no-bundle --autoconfig=false
 
       - name: Report the deployed URL
         run: |

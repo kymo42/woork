@@ -1,21 +1,23 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "main": ".open-next/worker.js",
   "name": "woork",
   "compatibility_date": "2025-09-27",
-  "compatibility_flags": ["nodejs_compat"],
+
+  // woork is deployed as a STATIC SITE.
+  //
+  // The app is fully prerenderable - every route is a client component and all
+  // state (including the training game's progress) lives in localStorage. There
+  // is no server-side data fetching, so there is nothing that needs a server
+  // function, and no Firebase admin or secret is required at runtime.
+  //
+  // We deliberately do NOT run the OpenNext server bundle here. On the Workers
+  // runtime it fails at request time, making every HTML route return 500 while
+  // static chunks still serve correctly. Serving the exported HTML removes the
+  // server function entirely, which removes that failure.
   "assets": {
-    "directory": ".open-next/assets",
-    "binding": "ASSETS"
-  },
-  "services": [
-    {
-      "binding": "WORKER_SELF_REFERENCE",
-      "service": "woork"
-    }
-  ],
-  "images": {
-    "binding": "IMAGES"
+    "directory": ".next-static",
+    "not_found_handling": "404-page",
+    "html_handling": "auto-trailing-slash"
   },
   "observability": {
     "enabled": true
