@@ -7,9 +7,10 @@
     "dev": "next dev --turbopack -p 3000",
     "start": "next start",
     "lint": "next lint",
-    "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
-    "deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
-    "upload": "opennextjs-cloudflare build && opennextjs-cloudflare upload",
+    "preview": "opennextjs-cloudflare build && node scripts/patch-opennext-eval.mjs && opennextjs-cloudflare preview",
+    "deploy": "opennextjs-cloudflare build && node scripts/patch-opennext-eval.mjs && opennextjs-cloudflare deploy",
+    "upload": "opennextjs-cloudflare build && node scripts/patch-opennext-eval.mjs && opennextjs-cloudflare upload",
+    "build:cf": "opennextjs-cloudflare build && node scripts/patch-opennext-eval.mjs",
     "cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts",
     "check:game": "node --experimental-strip-types --import ./check/register.mjs check/game-check.ts",
     "check:modules": "node --experimental-strip-types --import ./check/register.mjs check/module-check.ts"

@@ -49,7 +49,7 @@ jobs:
         run: npm run check:game
 
       - name: Build for Cloudflare Workers
-        run: npx opennextjs-cloudflare build
+        run: npm run build:cf
 
       - name: Deploy
         uses: cloudflare/wrangler-action@v3
