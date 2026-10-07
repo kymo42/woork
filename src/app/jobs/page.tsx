@@ -15,6 +15,7 @@ import {
     ChevronRight,
     Star
 } from "lucide-react";
+import { MarketGate } from "@/components/game/MarketGate";
 
 interface Job {
     id: string;
@@ -115,6 +116,16 @@ const jobTypes = ["All", "Casual", "Part-time", "Flexible", "Internship"];
 const locations = ["All", "Sydney NSW", "Melbourne VIC", "Brisbane QLD", "Perth WA", "Adelaide SA"];
 
 export default function JobsPage() {
+    // Training first. The real job market opens once the player has proven they
+    // understand both sides of the desk - see src/components/game/MarketGate.tsx.
+    return (
+        <MarketGate>
+            <JobsMarket />
+        </MarketGate>
+    );
+}
+
+function JobsMarket() {
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedType, setSelectedType] = useState("All");
     const [selectedLocation, setSelectedLocation] = useState("All");

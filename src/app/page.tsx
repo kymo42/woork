@@ -10,7 +10,9 @@ import {
     Sparkles,
     Heart,
     Building2,
-    GraduationCap
+    GraduationCap,
+    Gamepad2,
+    UserRound
 } from "lucide-react";
 import { DarkModeButton } from "@/components/DarkModeButton";
 
@@ -30,6 +32,7 @@ export default function Home() {
 
                         <div className="hidden md:flex items-center gap-8">
                             <a href="#features" className="text-gray-600 hover:text-woork-teal transition-colors">Features</a>
+                            <a href="#training" className="text-gray-600 hover:text-woork-teal transition-colors">Training Game</a>
                             <a href="#how-it-works" className="text-gray-600 hover:text-woork-teal transition-colors">How it Works</a>
                             <a href="#for-employers" className="text-gray-600 hover:text-woork-teal transition-colors">For Employers</a>
                         </div>
@@ -212,6 +215,117 @@ export default function Home() {
                                 Parents can approve applications, monitor messages, and ensure
                                 everything stays safe and appropriate.
                             </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* Training Game */}
+            <section id="training" className="py-20 px-4 sm:px-6 lg:px-8 bg-woork-cream">
+                <div className="max-w-7xl mx-auto">
+                    <div className="grid lg:grid-cols-2 gap-12 items-center">
+                        <div>
+                            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-woork-navy text-white text-sm font-medium mb-6">
+                                <Gamepad2 className="w-4 h-4 text-woork-teal" />
+                                New: play both sides before you apply
+                            </div>
+                            <h2 className="text-4xl font-bold text-woork-navy mb-4">
+                                Learn the job before you get the job
+                            </h2>
+                            <p className="text-lg text-gray-600 mb-6">
+                                Job hunting is a skill, and nobody teaches it. So we made it something you can
+                                practise - safely, before it costs you anything real.
+                            </p>
+
+                            <div className="space-y-4 mb-8">
+                                <div className="flex items-start gap-4">
+                                    <div className="w-10 h-10 rounded-xl gradient-teal flex items-center justify-center flex-shrink-0">
+                                        <UserRound className="w-5 h-5 text-white" />
+                                    </div>
+                                    <div>
+                                        <div className="font-semibold text-woork-navy">Play the worker</div>
+                                        <div className="text-gray-600 text-sm">
+                                            Learn what you&apos;re owed, spot a bad job ad, and know what an employer is
+                                            not allowed to ask you.
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="flex items-start gap-4">
+                                    <div className="w-10 h-10 rounded-xl gradient-navy flex items-center justify-center flex-shrink-0">
+                                        <Building2 className="w-5 h-5 text-white" />
+                                    </div>
+                                    <div>
+                                        <div className="font-semibold text-woork-navy">Then play the boss</div>
+                                        <div className="text-gray-600 text-sm">
+                                            Write the ad, set the pay, read the applications. See exactly what an
+                                            employer needs - and what they can&apos;t do.
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="flex items-start gap-4">
+                                    <div className="w-10 h-10 rounded-xl gradient-coral flex items-center justify-center flex-shrink-0">
+                                        <Sparkles className="w-5 h-5 text-white" />
+                                    </div>
+                                    <div>
+                                        <div className="font-semibold text-woork-navy">Then judge yourself</div>
+                                        <div className="text-gray-600 text-sm">
+                                            Four anonymous applications. One is yours. You don&apos;t find out which
+                                            until you&apos;ve decided whether you&apos;d hire you.
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="flex flex-col sm:flex-row gap-4">
+                                <Link href="/play" className="btn-primary inline-flex items-center justify-center gap-2">
+                                    Play the training game
+                                    <ArrowRight className="w-5 h-5" />
+                                </Link>
+                                <a href="#how-it-works" className="btn-secondary inline-flex items-center justify-center gap-2">
+                                    See how it works
+                                </a>
+                            </div>
+                        </div>
+
+                        <div className="bg-woork-navy rounded-3xl p-6 lg:p-8 text-white">
+                            <div className="flex items-center gap-2 mb-6">
+                                <Shield className="w-5 h-5 text-woork-teal" />
+                                <span className="font-semibold">Built for under-18s</span>
+                            </div>
+                            <ul className="space-y-4 text-white/70">
+                                <li className="flex items-start gap-3">
+                                    <CheckCircle2 className="w-5 h-5 text-woork-teal flex-shrink-0 mt-0.5" />
+                                    <span>
+                                        <span className="text-white font-medium">No leaderboard, ever.</span> You
+                                        can&apos;t see anyone else and nobody can see you.
+                                    </span>
+                                </li>
+                                <li className="flex items-start gap-3">
+                                    <CheckCircle2 className="w-5 h-5 text-woork-teal flex-shrink-0 mt-0.5" />
+                                    <span>
+                                        <span className="text-white font-medium">You stay anonymous</span> until you
+                                        choose to talk to a verified employer.
+                                    </span>
+                                </li>
+                                <li className="flex items-start gap-3">
+                                    <CheckCircle2 className="w-5 h-5 text-woork-teal flex-shrink-0 mt-0.5" />
+                                    <span>
+                                        <span className="text-white font-medium">Progress stays on your device.</span>{" "}
+                                        Nothing you do in training is sent to us.
+                                    </span>
+                                </li>
+                                <li className="flex items-start gap-3">
+                                    <CheckCircle2 className="w-5 h-5 text-woork-teal flex-shrink-0 mt-0.5" />
+                                    <span>
+                                        <span className="text-white font-medium">State-accurate rules</span> for NSW,
+                                        VIC, QLD, WA, SA, TAS, ACT and NT.
+                                    </span>
+                                </li>
+                            </ul>
+                            <div className="mt-6 pt-6 border-t border-white/10 text-sm text-white/60">
+                                Finish both sides and the real job market unlocks. That&apos;s the whole idea: informed
+                                first, then employed.
+                            </div>
                         </div>
                     </div>
                 </div>

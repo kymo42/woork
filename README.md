@@ -4,6 +4,43 @@ A modern, mobile-first job platform designed specifically for Australian teenage
 
 ## Features
 
+### The Training Game (`/play`)
+
+Before a teenager hands their details to an adult stranger, woork makes them play both
+sides of the desk. The game is the qualification gate for the real job market.
+
+- **Play the worker** - what you're owed, spotting a bad job ad, the questions an
+  employer may not ask you, unpaid trials, payslips, and refusing unsafe work.
+- **Play the employer** - write a lawful job ad, set junior rates correctly, roster
+  around school hours, issue payslips, and induce a young worker safely.
+- **The Mirror** - four anonymous applications, one of which is yours. You shortlist
+  on merit, then find out whether you would have hired yourself.
+- **Identity Shield** - every identifying field starts hidden. Nothing about the
+  player is visible until they turn it on themselves, one choice at a time.
+- **Qualification** - finish both tracks, beat every trap, and face the Mirror to
+  unlock the real job market.
+
+Design constraints that are not negotiable, because every player is under 18:
+
+1. **No leaderboard, ever.** There is nothing to rank and nobody to rank against.
+2. **No identity stored.** Progress is a single anonymous record in `localStorage`.
+   No name, email, date of birth, school or server sync.
+3. **No hard-coded pay figures.** Minimum wages and junior rates change with the
+   annual wage review, so the game teaches the rule and points at the live
+   Fair Work Pay Calculator instead of a stale dollar amount.
+4. **Honest about what isn't known.** Where a state's child-employment rules could
+   not be verified to a standard safe enough to tell a teenager, the game says so
+   and names the regulator rather than inventing a limit.
+
+> **Pitfalls matter.** Getting a decision wrong shows the trap, explains the real
+> consequence, and lets the player take the other road. Nobody is permanently
+> penalised for not knowing something they were never taught - but a trap left
+> standing blocks entry to the job market.
+
+Legal content is grounded in Fair Work Ombudsman, Fair Work Commission, ATO,
+Safe Work Australia and state regulator sources. See
+`src/lib/game/jurisdictions.ts` for the source list and verification dates.
+
 ### For Teenagers
 - 📱 Mobile-first design with Instagram-meets-LinkedIn aesthetic
 - 🎯 Smart job matching based on skills, location, and availability
@@ -77,26 +114,66 @@ npm run dev
 
 6. Open http://localhost:3000 in your browser
 
+## Verifying the game
+
+The game's rules (scoring, gauges, trap handling, the qualification gate, and the
+content itself) are covered by a headless harness that plays the game end to end.
+It needs no browser and no dev server:
+
+```bash
+npm run check:game       # 447 assertions: structure, play-throughs, content guards
+npm run check:modules    # every game module imports and initialises
+npx tsc --noEmit         # types across the app
+```
+
+`check/game-check.ts` is worth reading before changing scenario content. It fails
+the build if a beat loses its citation, gains two correct answers, hard-codes a
+stale pay figure, or if the qualification gate can be passed without beating the
+traps.
+
+The harness plays four ways and asserts the intended shape:
+
+| Play style | Informs | Qualifies |
+| --- | --- | --- |
+| Perfect, first time | 96% | yes |
+| Wrong first, then works it out | 74% | yes |
+| Falls for every trap and stays there | 25% | no |
+| Half-finished | 25% | no |
+
 ## Project Structure
 
 ```
 woork/
 ├── src/
-│   ├── app/                 # Next.js App Router pages
-│   │   ├── page.tsx        # Landing page
-│   │   ├── layout.tsx      # Root layout
-│   │   └── globals.css     # Global styles
-│   ├── components/         # React components
-│   │   ├── auth-context.tsx
-│   │   └── ui/             # Reusable UI components
-│   └── lib/                # Utilities and configs
-│       ├── firebase.ts     # Firebase configuration
-│       └── types.ts        # TypeScript definitions
-├── public/                 # Static assets
-├── firestore.rules        # Firestore security rules
-├── firebase.json          # Firebase configuration
-└── package.json           # Dependencies
+│   ├── app/
+│   │   ├── page.tsx            # Landing page
+│   │   ├── layout.tsx          # Root layout
+│   │   ├── globals.css         # Global styles
+│   │   ├── play/               # TRAINING GAME (onboarding, hub, stage runner)
+│   │   └── jobs/               # Real job market, gated by the game
+│   ├── components/
+│   │   ├── providers.tsx       # Auth context (useAuth) - there is no auth-context.tsx
+│   │   └── game/               # Game UI: BeatCard, MirrorStage, IdentityShield, MarketGate
+│   └── lib/
+│       ├── firebase.ts         # Firebase configuration
+│       ├── types.ts            # Platform TypeScript definitions
+│       └── game/
+│           ├── types.ts        # Game type system
+│           ├── engine.ts       # Scoring, gauges, licence gate, persistence
+│           ├── scenarios.ts    # 8 stages, 24 beats, 37 real-world traps
+│           ├── jurisdictions.ts# State/territory rules + cited live sources
+│           ├── identity.ts     # Identity Shield rules
+│           └── useGameProgress.ts
+├── check/                      # Headless verification harness (dev only, excluded from tsc)
+├── public/                     # Static assets
+├── firestore.rules             # Firestore security rules
+├── firebase.json               # Firebase configuration
+└── package.json                # Dependencies
 ```
+
+Note: the repo uses hand-rolled Tailwind plus `lucide-react`. There is no
+`src/components/ui/` directory and no shadcn/ui setup, despite older references in
+this README.
 
 ## Configuration
 
