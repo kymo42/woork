@@ -57,8 +57,8 @@ logs
 tmp/
 temp/
 
-# OpenNext
-.open-next
+# Static export output (served by Cloudflare as static assets) and dev scratch
+.next-static/
 
 # wrangler files
 .wrangler
@@ -68,8 +68,3 @@ temp/
 
 # Local npm cache (used when the default cache is unavailable)
 .npm-cache/
-
-# Local build scratch
-.tmp/
-.next-static/
-.open-next/
