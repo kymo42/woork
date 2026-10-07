@@ -20,3 +20,12 @@ const nextConfig: NextConfig = {
 };
 
 export default nextConfig;
+
+// Enables the OpenNext Cloudflare bindings during `next dev`, so local
+// development matches what Cloudflare Workers runs. Guarded so a plain
+// `next build` or `next dev` still works if the adapter isn't installed.
+import('@opennextjs/cloudflare')
+    .then((m) => m.initOpenNextCloudflareForDev())
+    .catch(() => {
+        /* @opennextjs/cloudflare not installed - plain Next.js mode */
+    });

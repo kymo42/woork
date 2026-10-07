@@ -65,3 +65,6 @@ temp/
 .dev.vars*
 !.dev.vars.example
 !.env.example
+
+# Local npm cache (used when the default cache is unavailable)
+.npm-cache/
