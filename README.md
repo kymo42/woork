@@ -140,6 +140,35 @@ The harness plays four ways and asserts the intended shape:
 | Falls for every trap and stays there | 25% | no |
 | Half-finished | 25% | no |
 
+## Deploying
+
+woork is deployed to **Cloudflare Workers as a static site** at
+<https://woork.0-b50.workers.dev>.
+
+The app is a static export on purpose. Every route is a client component and all
+state, including the training game's progress, lives in `localStorage`. There is
+no server-side data fetching, no route handler and no server action, so nothing
+needs a server runtime. `next.config.ts` sets `output: "export"` and the build
+lands in `.next-static/`, which `wrangler.jsonc` serves as static assets.
+
+```bash
+npm run build:cf   # static export into .next-static/
+npm run deploy     # build, then deploy to Cloudflare
+```
+
+Deployment runs automatically on push to `main` via
+`.github/workflows/deploy.yml`, which builds on Linux and runs the game's rule
+checks before deploying, so a content regression cannot reach production. It
+requires two repository secrets: `CLOUDFLARE_API_TOKEN` and
+`CLOUDFLARE_ACCOUNT_ID`.
+
+> **Note on the earlier approach.** An earlier revision ran the app through the
+> OpenNext server bundle on Workers. It failed at request time — every HTML route
+> returned 500 while static chunks still served, which made it look like a
+> partial success. Removing protobufjs's `eval` prober and rebuilding on Linux
+> both failed to clear it. Static export removes the server function entirely and
+> is a better fit for a client-only app, so the OpenNext build path was removed.
+
 ## Project Structure
 
 ```
