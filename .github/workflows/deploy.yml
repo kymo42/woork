@@ -1,0 +1,66 @@
+name: Deploy woork to Cloudflare Workers
+
+# OpenNext does not support Windows: building there produces a bundle whose
+# routing manifests use Windows path separators, so every HTML route resolves to
+# the 404 page inside a 500 shell (static assets still serve, which makes it look
+# like a partial success). Building on Linux avoids that entirely.
+#
+# This workflow is therefore the only supported way to deploy woork.
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "src/**"
+      - "public/**"
+      - "package.json"
+      - "package-lock.json"
+      - "next.config.ts"
+      - "open-next.config.ts"
+      - "wrangler.jsonc"
+      - "tailwind.config.ts"
+      - "postcss.config.mjs"
+      - "tsconfig.json"
+
+concurrency:
+  group: deploy-woork
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Verify the game's rules still hold
+        run: npm run check:game
+
+      - name: Build for Cloudflare Workers
+        run: npx opennextjs-cloudflare build
+
+      - name: Deploy
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: deploy --autoconfig=false
+
+      - name: Report the deployed URL
+        run: |
+          echo "### woork deployed" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "- https://woork.0-b50.workers.dev" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Game: https://woork.0-b50.workers.dev/play" >> "$GITHUB_STEP_SUMMARY"

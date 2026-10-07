@@ -68,3 +68,6 @@ temp/
 
 # Local npm cache (used when the default cache is unavailable)
 .npm-cache/
+
+# Local build scratch
+.tmp/
