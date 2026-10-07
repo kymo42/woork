@@ -88,31 +88,34 @@ cd woork
 npm install
 ```
 
-3. Copy the environment file:
+3. Copy the environment file (optional - see below):
 ```bash
 cp .env.local.example .env.local
 ```
 
-4. Configure Firebase:
-   - Create a Firebase project at https://console.firebase.google.com
-   - Enable Authentication (Email/Password, Google, GitHub):
-     - Go to Authentication → Sign-in method
-     - Enable "Email/Password" (toggle to ON, enable Email/Password, not just Email link)
-     - Enable "Google" (toggle to ON, add your email as a provider)
-     - Enable "GitHub" (optional, requires GitHub OAuth app)
-   - Enable Firestore Database
-   - Enable Storage
-   - Add your domain to Authorized Domains:
-     - Go to Authentication → Settings → Authorized domains
-     - Add your production domain (e.g., your-app.vercel.app) and localhost
-   - Copy your config to `.env.local`
-
-5. Run the development server:
+4. Run the development server:
 ```bash
 npm run dev
 ```
 
-6. Open http://localhost:3000 in your browser
+5. Open http://localhost:3000 in your browser
+
+**The training game needs no configuration.** `/play` and the job-market gate run
+entirely in the browser and keep their state in `localStorage`, so you can play
+without a `.env.local` at all.
+
+**Firebase is only needed for the accounts side** - login, signup, and the pages
+that read a profile or job from Firestore. To work on those:
+
+- Create a Firebase project at https://console.firebase.google.com
+- Enable Authentication, then the providers you want (Email/Password, Google, GitHub)
+- Enable Firestore and Storage
+- Under Authentication → Settings → Authorized domains, add `localhost` and your
+  production domain
+- Copy the config values into `.env.local`
+
+Firebase is initialised defensively (`src/lib/firebase.ts`), so the app builds and
+the game runs with those variables absent - only the account features go quiet.
 
 ## Verifying the game
 
@@ -195,28 +198,46 @@ woork/
 │           └── useGameProgress.ts
 ├── check/                      # Headless verification harness (dev only, excluded from tsc)
 ├── public/                     # Static assets
+├── storage.rules               # Storage rules - deny-all until photos are actually built
 ├── firestore.rules             # Firestore security rules
 ├── firebase.json               # Firebase configuration
+├── wrangler.jsonc              # Cloudflare static-assets config
 └── package.json                # Dependencies
 ```
 
-Note: the repo uses hand-rolled Tailwind plus `lucide-react`. There is no
-`src/components/ui/` directory and no shadcn/ui setup, despite older references in
-this README.
+Notes on the repo as it actually is:
+
+- The UI is hand-rolled Tailwind plus `lucide-react`. There is no
+  `src/components/ui/` directory and no shadcn/ui setup, despite older references
+  in this README.
+- There is no `src/components/auth-context.tsx`; the auth context lives in
+  `src/components/providers.tsx` and is used via `useAuth()`.
+- `storage.rules` denies all access on purpose. Nothing uploads to Storage yet, so
+  the bucket stays shut rather than open and unused.
+- The favicon comes from `src/app/icon.svg`.
 
 ## Configuration
 
 ### Environment Variables
 
+All optional - the training game runs without any of them.
+
 ```env
+# Firebase (accounts only: login, signup, profile/job reads)
 NEXT_PUBLIC_FIREBASE_API_KEY=your_api_key
 NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
 NEXT_PUBLIC_FIREBASE_PROJECT_ID=your-project-id
 NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your-project.appspot.com
 NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
 NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
-NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=your_google_maps_key
+
+# Cloudflare Turnstile (signup bot protection)
+NEXT_PUBLIC_TURNSTILE_SITE_KEY=your_site_key
+TURNSTILE_SECRET_KEY=your_secret_key
 ```
+
+These are inlined at build time, so a static deploy picks up whatever is in
+`.env.local` when `npm run build:cf` runs.
 
 ## License
 

@@ -1,0 +1,30 @@
+// woork - Firebase Storage Security Rules
+//
+// STATUS: deny-all, deliberately.
+//
+// The app currently performs NO Storage operations. `getStorage()` is
+// initialised in src/lib/firebase.ts, and TeenProfile has a `profilePhoto`
+// field, but that field only ever holds a string and nothing uploads bytes.
+//
+// Because this project handles data belonging to people under 18, Storage is
+// closed until there is an actual, reviewed upload path. Opening it now would
+// create a writable bucket with no consumer and no reason to trust the caller.
+//
+// WHEN PHOTOS ARE ADDED, the shape to aim for is:
+//   - path scoped to the owner: profile-photos/{userId}/{fileName}
+//   - writes allowed only when request.auth.uid == userId
+//   - a content-type check so the bucket cannot be used to host arbitrary files
+//   - a size cap well under a megabyte
+// and nothing readable by other teens until the platform deliberately allows it.
+
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    // No reads, no writes, by anyone, for now.
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

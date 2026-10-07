@@ -15,9 +15,8 @@ export const metadata: Metadata = {
     title: "woork - Find Your First Job",
     description: "The modern job platform for Australian teenagers. Find casual jobs, build your resume, and connect with local employers.",
     keywords: ["teen jobs", "part time jobs", "casual work", "young workers", "Australia jobs"],
-    icons: {
-        icon: "/favicon.ico",
-    },
+    // The favicon is supplied by src/app/icon.svg, which the App Router wires up
+    // automatically. There is no public/favicon.ico, so do not reference one.
 };
 
 export default function RootLayout({
